@@ -38,8 +38,8 @@ h6 {
 }
 
 .body-text {
-	margin-top: 2em;
-	margin-bottom: 2em;
+	margin-top: 1em;
+	margin-bottom: 1em;
 }
 .body-text p {
 	text-align: left;
@@ -49,6 +49,29 @@ h6 {
 
 svg {
 	overflow: visible;
+}
+
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
+}
+
+.flex-wrap-center {
+  	display: -webkit-box;
+  	display: -webkit-flex;
+  	display: -ms-flexbox;
+  	display: flex;
+  	-webkit-flex-wrap: wrap;
+      	-ms-flex-wrap: wrap;
+          	flex-wrap: wrap;
+  	-webkit-box-pack: center;
+  	-webkit-justify-content: center;
+      	-ms-flex-pack: center;
+          	justify-content: center;
 }
 
 /* ------ title section ------ */
@@ -73,7 +96,7 @@ svg {
 	/*font-family: 'Allura', cursive;*/
 	/*font-family: 'Parisienne', cursive;*/
 	font-family: 'Dancing Script', cursive;
-	font-size: calc(70px + (130 - 70) * (100vw - 320px)/(1200 - 320));
+	font-size: calc(60px + (130 - 60) * (100vw - 320px)/(1200 - 320));
 	font-weight: 400;
 	margin-top: 0.3em;
 	margin-bottom: 0.25em;
@@ -99,44 +122,54 @@ svg {
 	color: #b5b5b5;
 }
 
+/* ------ Chart sub-titles ------ */
+
+@media screen and (max-width: 320px) {
+  	.chart-top-title { font-size: 16px !important; }
+}
+@media screen and (min-width: 1000px) {
+  	.chart-top-title { font-size: 22px !important; }
+}
+
+.chart-top-title {
+	font-family: 'Lato', sans-serif;
+	font-weight: 300;
+	font-size: calc(16px + (22 - 16) * (100vw - 320px)/(1000 - 320));
+	color: #696969;
+	text-align: center;
+	cursor: default;
+	margin-bottom: 1em;
+}
+
 /* ------ Tree ring chart ------ */
 
-.ring-path {
-	fill: none;
-	/*stroke: #AAAAAA;*/
-	/*stroke-dasharray: 5,5;*/
+#tree-ring-language-title {
+	color: #161616;
+	font-weight: 400;
+	font-size: 1.3em;
 }
 
 @media screen and (max-width: 320px) {
-  	#viz-tree-ring { font-size: 12px !important; }
-  	.ring-center-text.big { font-size: 50px !important; }
-  	.ring-center-text.small { font-size: 14px !important; }
+  	.ring-center-text { font-size: 14px !important; }
 }
 @media screen and (min-width: 800px) {
-  	#viz-tree-ring { font-size: 18px !important; }
-  	.ring-center-text.big { font-size: 80px !important; }
-  	.ring-center-text.small { font-size: 16px !important; }
+  	.ring-center-text { font-size: 16px !important; }
 }
-#viz-tree-ring {
+
+.tree-ring {
 	font-family: 'Dancing Script', cursive;
-	font-size: calc(12px + (18 - 12) * (100vw - 320px)/(800 - 320));
 	font-weight: 400;
 	fill: #161616;
 	text-align: center;
 	white-space: pre;
 	cursor: default;
 }
+
 .ring-center-text {
 	font-family: 'Lato', sans-serif;
+	font-size: calc(14px + (16 - 14) * (100vw - 320px)/(800 - 320));
 	font-weight: 300;
 	text-anchor: middle;
-}
-.ring-center-text.big {
-	font-size: calc(50px + (80 - 50) * (100vw - 320px)/(800 - 320));
-    fill: #cfcece;
-}
-.ring-center-text.small { 
-	font-size: calc(14px + (16 - 14) * (100vw - 320px)/(800 - 320));
 }
 
 .ring-rank {
@@ -145,6 +178,19 @@ svg {
 	font-weight: 300;
 	text-anchor: middle;
 	fill: #afafaf;
+}
+
+.ring-text-normal {
+	font-size: 1em;
+}
+
+.ring-text-bold {
+	font-size: 1.5em;
+	font-weight: 700;
+}
+
+.ring-path {
+	fill: none;
 }
 
 

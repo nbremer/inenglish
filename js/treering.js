@@ -1,34 +1,54 @@
 
-d3.select(window).on('resize', resizeTreeRings); 
+ 
+window.onload = createTreeRings;
+
+function createTreeRings() {
+
+	d3.select(window).on('resize', resizeTreeRings);
 
 	///////////////////////////////////////////////////////////////////////////
 	//////////////////////////// Set up the SVG ///////////////////////////////
 	///////////////////////////////////////////////////////////////////////////
 
 	var divWidth = parseInt(d3.select("#viz-tree-ring").style("width"));
+	var windowHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+	var size = Math.min(divWidth, windowHeight * 0.8);
+
 	var marginScale = d3.scaleLinear()
-		.domain([320, 1200])
+		.domain([320, 700])
 	    .range([10, 25]);
 
-	var marginSize = Math.round(marginScale(divWidth));
+	//Sizes of the big circle
+	var marginSize = Math.round(marginScale(size));
 	var margin = {
-	  top: marginSize,
+	  top: marginSize*1.25,
 	  right: marginSize,
-	  bottom: marginSize,
+	  bottom: marginSize*3,
 	  left: marginSize 
 	};
-	var width = divWidth - margin.left - margin.right;
-	var height = width; //TODO - calculate correct height
+	var widthBig = size - margin.left - margin.right;
+	var heightBig = widthBig;
 
-	//SVG container
-	var svg = d3.select("#viz-tree-ring")
-		.append("svg")
-		.attr("width", width + margin.left + margin.right)
-		.attr("height", height + margin.top + margin.bottom);
+	//Radius of the big chosen language circle
+	var radiusBigCircle = Math.min(300, widthBig/2);
 
-	var g = svg.append("g")
-		.attr("id", "tree-ring-group")
-		.attr("transform", "translate(" + (margin.left) + "," + (margin.top) + ")");
+	//Radius of the smaller language circles
+	var radiusSmallCircles = round2(Math.min(45, Math.max(30, divWidth/10)));
+
+	var marginScaleMini = d3.scaleLinear()
+		.domain([30, 50])
+	    .range([10, 25]);
+
+	//Sizes of the small language circles
+	var marginSizeMini = Math.round(marginScaleMini(radiusSmallCircles));
+	var marginMini = {
+	  top: marginSizeMini + 20,
+	  right: marginSizeMini,
+	  bottom: marginSizeMini,
+	  left: marginSizeMini 
+	};
+	var widthMini = 2*radiusSmallCircles;
+	var heightMini = 2*radiusSmallCircles;
 
 	///////////////////////////////////////////////////////////////////////////
 	//////////////////////// Create mappings and scales ///////////////////////
@@ -47,24 +67,20 @@ d3.select(window).on('resize', resizeTreeRings);
 	languageMap["tr"] = "Turkish";
 	languageMap["all"] = "All languages";
 
-	//Radius of the big chosen language and the smaller languages
-	var radiusBigCircle = Math.min(300, width/2);
-	var radiusSmallCircles = Math.min(40, width/3);
 	var chosenLanguage = "de";
-	var numLanguages = 11;
-	var gridPos = [];
+	var spaceWidth;
 
 	var radiusScale = d3.scaleLinear()
 		.domain([1,10])
-		.range([radiusBigCircle, radiusBigCircle*0.2]);
+		.range([radiusBigCircle, radiusBigCircle*0.1]);
 
 	var radiusScaleSmall = d3.scaleLinear()
 		.domain([1,10])
 		.range([radiusSmallCircles, radiusSmallCircles * 0.2]);
 
 	var openScale = d3.scaleLinear()
-		.domain([1,10])
-		.range([5, 15]);
+		.domain([1,3,7,10])
+		.range([5,7,15,30]);
 
 	var paddingScale = d3.scaleLinear()
 		.domain([320, 750])
@@ -74,9 +90,9 @@ d3.select(window).on('resize', resizeTreeRings);
 		.domain([320, 750])
 		.range([50, 80]);
 
-	var smallFontScale = d3.scaleLinear()
-		.domain([320, 750])
-		.range([14, 16]);
+	var fontScale = d3.scaleLinear()
+		.domain([320, 800])
+		.range([10, 20]);
 
 	///////////////////////////////////////////////////////////////////////////
 	///////////////////////////// Read the data ///////////////////////////////
@@ -96,56 +112,78 @@ d3.select(window).on('resize', resizeTreeRings);
 			.key(function(d) { return d.language; })
 			.entries(data);
 
-		numLanguages = languageData.length;
+		var languageIndex = [];
+		languageData.forEach(function(d,i) {
+			languageIndex[d.key] = i;
+		});
 
 		///////////////////////////////////////////////////////////////////////////
-		/////////////////////// Calculate the grid positions //////////////////////
+		/////////////////////////// Create the SVG grids //////////////////////////
 		///////////////////////////////////////////////////////////////////////////
 
-		gridPos = calculateGrid(numLanguages - 1, radiusScaleSmall(1), radiusScale(1), width);
+		//SVG container for the big circle
+		var svgBig = d3.select("#viz-tree-ring")
+			.datum(languageData.filter(function(d) { return d.key === chosenLanguage; }))
+			.append("svg")
+			.attr("id", "tree-ring-svg-big")
+			.attr("width", widthBig + margin.left + margin.right)
+			.attr("height", heightBig + margin.top + margin.bottom)
+			.append("g")
+				.attr("class", "tree-ring-group")
+				.attr("transform", "translate(" + (margin.left + widthBig/2) + "," + (margin.top + heightBig/2) + ")")
+				.style("font-size", round2(fontScale(size)) + "px")
+				.each(function(d) { d.treeID = 0; });
 
-		//Set correct height now that we know the number of rows
-		svg.attr("height", (gridPos[gridPos.length-1].y + radiusScaleSmall(1)) + margin.top + margin.bottom);
+		//Create a separate div for the small SVGs so they can be nicely positioned with flexbox
+		var divMini = d3.select("#viz-tree-ring-mini").selectAll(".tree-ring-mini-div")
+			.data(languageData.filter(function(d) { return d.key !== chosenLanguage; }))
+			//.data(languageData)
+			.enter().append("div")
+			.attr("class", "tree-ring-mini-div");
+		//SVG containers for the small language circles
+		var svgMini = divMini.append("svg")
+			.attr("class", "tree-ring-mini")
+			.attr("width", widthMini + marginMini.left + marginMini.right)
+			.attr("height", heightMini + marginMini.top + marginMini.bottom)
+			.on("click", switchChosenLanguage)
+			.append("g")
+				.attr("class", function(d,i) { return "tree-ring-group tree-group-ID-" + (i+1); })
+				.attr("transform", "translate(" + (marginMini.left + widthMini/2) + "," + (marginMini.top + heightMini/2) + ")")
+				.style("font-size", round2(fontScale(size)) + "px")
+				.each(function(d,i) { d.treeID = i+1; });
 
 		///////////////////////////////////////////////////////////////////////////
 		///////////////////////// Create the word paths ///////////////////////////
 		///////////////////////////////////////////////////////////////////////////
 
-		var gridCounter = 0;
-		var tree = g.selectAll(".tree")
-			.data(languageData)
-			.enter().append("g")
-			.attr("class", function(d) { return "tree " + d.key; })
-			.each(function(d) { d.chosen = d.key === chosenLanguage ? 1 : 0; })
-			.attr("transform", function(d,i) {
-				if(d.chosen) {
-					return "translate(" + gridPos[0].x + "," + gridPos[0].y + ")";
-				} else {
-					gridCounter += 1;
-					return "translate(" + gridPos[gridCounter].x + "," + gridPos[gridCounter].y + ")";
-				}//else
-			})
-			.on("click", switchChosenLanguage);
-
-		//Append text for the language
-		var ringLanguage = tree.append("text")
-			.attr("class", "ring-center-text")
-			.attr("y", function(d) { return d.chosen ? 0 : -radiusScaleSmall(1)*1.6; })
+		//Append text for the language on top
+		var ringLanguage = svgMini.append("text")
+			.attr("class", "ring-center-text small noselect")
+			.attr("y", -radiusScaleSmall(1)*1.6)
 			.attr("dy", "0.25em")
-			.style("fill", function(d) { return d.chosen ? "#cfcece" : "#161616"; })
-			.style("font-size", function(d) { return d.chosen ? bigFontScale(width) : smallFontScale(width); })
+			.style("fill", "#161616")
 			.text(function(d,i) { return languageMap[d.key]; });
 
 		//Create a group for each ring
-		var ring = tree.selectAll(".ring")
-			.data(function(d) { return d.values; })
+		var ring = d3.selectAll(".tree-ring-group").selectAll(".ring")
+			.data(function(d,i) { return i === 0 ? d[0].values : d.values; })
 			.enter().append("g")
 			.attr("class", "ring")
-			.each(function(d) { d.chosen = d.language === chosenLanguage ? 1 : 0; });
+			.each(function(d,i) { 
+				d.treeID = this.parentNode.__data__.treeID;
+				d.chosen = d.treeID === 0 ? 1 : 0;
+				d.ringID = i;
+				//Create dummy values to be able to switch languages
+				d.languageD = d.language;
+				d.originalD = d.original;
+				d.translationD = d.translation;
+			});
 
+		//Create the path along which the text can flow later
 		var ringPath = ring.append("path")
 			.attr("class", "ring-path")
-			.attr("id", function(d) { return "lang-" + d.language + "-rank-" + d.rank; })
+			.attr("id", function(d) { return "tree-" + d.treeID + "-rank-" + d.rank; })
+			//.style("stroke","#d2d2d2")
 			.attr("d", function(d,i) {
 				var radius = d.chosen ? radiusScale(d.rank) : radiusScaleSmall(d.rank);
 				var open = d.chosen ? openScale(d.rank) : 1;
@@ -154,198 +192,350 @@ d3.select(window).on('resize', resizeTreeRings);
 						round2(radius*Math.cos(-open*Math.PI/180 + Math.PI/2)) + "," + round2(radius*Math.sin(-open*Math.PI/180 + Math.PI/2));
 			});
 
-		//Create an SVG text element and append a textPath element
-		ring.append("text")
-			.attr("class", "ring-text")
-			.style("fill", function(d) { return d.chosen ? "#161616" : "#afafaf"; })
-		  .append("textPath")
-		  	.attr("startOffset","50%")
-		  	.style("text-anchor","middle")
-			.attr("xlink:href", function(d) { return "#lang-" + d.language + "-rank-" + d.rank; })
-			.text(function(d) { return new Array(80).join( d.translation + (d.chosen ? '\u00A0\u00A0\u00A0' : ' ') ); });
-
-		//Add position number to the chosen language
-		var ranks = g.append("g")
-			.attr("class", "ring-rank-group")
-			.attr("transform", "translate(" + gridPos[0].x + "," + gridPos[0].y + ")");
-
+		//Add position number to the big circle
+		var ranks = svgBig.append("g")
+			.attr("class", "ring-rank-group");
 		ranks.selectAll(".ring-rank")
 			.data(d3.range(0,11))
 			.enter().append("text")
-			.attr("class", "ring-rank")
+			.attr("class", "ring-rank noselect")
 			.attr("y", function(d) { return radiusScale(d); })
 			.attr("dy", "0.5em")
 			.text(function(d) { return d === 0 ? "position" : d; });
 
+		///////////////////////////////////////////////////////////////////////////
+		///////////////////////// Draw text around path ///////////////////////////
+		///////////////////////////////////////////////////////////////////////////
+
+		//Find the width of a normal space
+		var space = svgBig.append("text")
+			.attr("id", "space-width")
+			.attr("class", "ring-text noselect")
+			.style("fill", "white")
+			.text('\u00A0');
+		spaceWidth = round2(space.node().getComputedTextLength());
+		//space.remove();
+
+		var textWidthBold = new Array(10);
+		//Create a text element for the big bold part of the main ring
+		var textRingMiddle = ring.filter(function(d) { return d.treeID === 0; })
+			.append("text")
+			.attr("class", function(d) { return "ring-text-bold noselect rank-" + d.rank; })
+			.style("fill", "none")
+			.text(function(d) { return '\u00A0\u00A0' + d.translationD + '\u00A0\u00A0'; });
+
+		//Create an SVG text element and append a textPath element for the other parts
+		var textRing = ring.append("text")
+			.attr("class", function(d) { return "ring-text noselect rank-" + d.rank; })
+			.style("fill", "none")
+			.text(function(d) { return '\u00A0\u00A0' + d.translationD + '\u00A0\u00A0'; });
+
+		//Create the textPaths that run in circles
+		updateTextPaths(1,0,0,0);
+
+		///////////////////////////////////////////////////////////////////////////
+		///////////////////////////// Switch on click /////////////////////////////
+		///////////////////////////////////////////////////////////////////////////
+
+		function switchChosenLanguage(d) {
+
+			//Switch the languages
+			var oldLanguage = chosenLanguage;
+			chosenLanguage = d.key;
+			d.key = oldLanguage;
+
+			var svgBig = d3.select("#tree-ring-svg-big").select(".tree-ring-group");
+			var svgSmall = d3.select(this).select(".tree-ring-group");
+
+			var durationTimes = [3500, 3250 ,3000, 2750, 2500, 2250, 2000, 1750, 1500, 1250]
+			var delayTimes = [0,500,950,1350,1700,2100,2350,2550,2700,2800,2850];
+
+			//Change the top title
+			d3.select("#tree-ring-language-title")
+				.transition().duration(1000)
+				.style("color", "white")
+				.on("end", function() {
+					var text = chosenLanguage !== "all" ? languageMap[chosenLanguage] : "all 10 languages combined";
+					var size = chosenLanguage !== "all" ? "1.3em" : "1.2em";
+					d3.select(this)
+						.style("font-size", size)
+						.text(text)
+						.transition().duration(500)
+						.style("color", "#161616");
+				});
+
+			///////////////////////////////////////////////////////////////////////////
+			////////////////////// Change the small clicked circle ////////////////////
+			///////////////////////////////////////////////////////////////////////////
+
+			//Rotate the small circle that was clicked
+			svgSmall.selectAll(".ring-path")
+				.transition().transition().duration(4000)
+				.attrTween("transform", function() {
+			      return d3.interpolateString("rotate(0)", "rotate(" + (3*360) + ")");
+			    });
+			//In the meantime update the data in the small circle
+			svgSmall.selectAll(".ring")
+				.each(function(d,i) { 
+					var subsetData = languageData[languageIndex[oldLanguage]].values;
+					d.languageD = subsetData[i].language;
+					d.originalD = subsetData[i].original;
+					d.translationD = subsetData[i].translation;
+				});
+			//Change the top title of the small circle
+			svgSmall.select(".ring-center-text")
+				.transition().duration(2000)
+				.style("fill", "white")
+				.on("end", function() {
+					d3.select(this)
+						.text(languageMap[oldLanguage])
+						.transition().duration(500)
+						.style("fill", "#161616");
+				});
+			//And then update the text paths of the small circle as well
+			setTimeout(function() {
+				updateTextPaths(0, 0, d.treeID, 0);
+			}, 2000);
+
+			///////////////////////////////////////////////////////////////////////////
+			///////////////////////// Change the big circle ///////////////////////////
+			///////////////////////////////////////////////////////////////////////////
+
+			function rotateTransition(selector, offset, extraOffset) {
+				svgBig.selectAll("." + selector)
+					.transition().duration(function(c) { return durationTimes[c.ringID]; })
+					.delay(function(c,i) { return delayTimes[c.ringID]; })
+					.attr("startOffset", function(c) { return (c[offset] + extraOffset) + "%"; });
+			}//function rotateTransition
+
+			//Rotate the texts out
+			rotateTransition("circle-front", "startOffsetFront", 120);
+			rotateTransition("circle-middle", "startOffsetMiddle", 120);
+			rotateTransition("circle-end", "startOffsetEnd", 120);
+
+			//Update the texts along the paths
+			setTimeout(updateText, durationTimes[durationTimes.length - 1] + delayTimes[delayTimes.length - 1]);
+
+			function updateText() {
+				//Update the data of the big circle
+				svgBig.selectAll(".ring")
+					.each(function(d,i) {
+						var subsetData = languageData[languageIndex[chosenLanguage]].values;
+						d.languageD = subsetData[i].language;
+						d.originalD = subsetData[i].original;
+						d.translationD = subsetData[i].translation;
+					});
+
+				//Update the textPaths
+				updateTextPaths(0, 1, 0, -120);
+
+				//Move the paths back in again
+				rotateTransition("circle-front", "startOffsetFront", 0);
+				rotateTransition("circle-middle", "startOffsetMiddle", 0);
+				rotateTransition("circle-end", "startOffsetEnd", 0);	
+			}//function updateText
+
+		}//function switchChosenLanguage
+
 	});//d3.csv
 
 	///////////////////////////////////////////////////////////////////////////
-	////////////////////// Calculate the grid positions ///////////////////////
+	///////////////////////// Do all the textPath things //////////////////////
 	///////////////////////////////////////////////////////////////////////////
 
-	function calculateGrid(numSmallCircle, smallCircleRadius, bigCircleRadius, width) {
-		
-		//Will contain the grid positions of the tree rings
-		var gridPos = [];
-		//The main chosen ring
-		gridPos.push({
-				x: width/2,
-				y: bigCircleRadius
-		});
+	function updateTextPaths(doAll, doBig, doSmall, extraOffset) {
 
-		var extraWidth = 2*smallCircleRadius,
-			yOffset = 2.1*bigCircleRadius + smallCircleRadius*1.8 + 50;
+		if(!extraOffset) extraOffset = 0;
 
-		var circleTotalWidth = 2*smallCircleRadius * paddingScale(width),
-			circleTotalHeight = 2*smallCircleRadius * 1.8,
-			numPerRow = Math.floor( (extraWidth + width) / circleTotalWidth ),
-			remainingWidth = round2( extraWidth + width - numPerRow * circleTotalWidth)/2,
-			remainingCircle = numSmallCircle % numPerRow,
-			numRows = Math.ceil(numSmallCircle / numPerRow);
+		if(doAll) {
+			var svg = d3.selectAll(".tree-ring-group");
+			//Recalculate the width of a space
+			spaceWidth = round2(d3.select("#space-width").node().getComputedTextLength());
+		} else if (doBig) {
+			var svg = d3.select("#tree-ring-svg-big").select(".tree-ring-group");
+			//Update the hidden text to get the proper text widths
+			svg.selectAll(".ring-text:not(#space-width), .ring-text-bold")
+				.text(function(d) { return '\u00A0\u00A0' + d.translationD + '\u00A0\u00A0'; });
+		} else {
+			var svg = d3.select(".tree-group-ID-" + doSmall);
+			//Update the hidden text to get the proper text widths
+			svg.selectAll(".ring-text")
+				.text(function(d) { return '\u00A0\u00A0' + d.translationD + '\u00A0\u00A0'; }); 
+		}//else
 
-		//If there are only two rows, divide them up nicely
-		if(numRows === 2) {
-			numPerRow = Math.ceil(numSmallCircle/2) + (numSmallCircle % 2 === 0 ? 1 : 0);
-			remainingWidth = round2(extraWidth + width - numPerRow * circleTotalWidth)/2;
-			remainingCircle = numSmallCircle % numPerRow;
+		//Remove all the text paths, because we need to recalculate the text lengths
+		svg.selectAll(".ring").selectAll("textPath").remove();
+
+		if(doAll || doBig) {
+			//Add the curved bold middle part of the big ring back in
+			var textWidthBold = new Array(10);
+			d3.selectAll("#tree-ring-svg-big").selectAll(".ring").select(".ring-text-bold")
+				.each(function(d,i) {
+			    	var el = d3.select(this);
+					textWidthBold[i] = round2(this.getComputedTextLength());
+
+					el.append("textPath")
+					  	.attr("class", "circle-middle")
+					  	.attr("startOffset", function(t) {
+					  		t.startOffsetMiddle = 50;
+					  		return (t.startOffsetMiddle+extraOffset) + "%";
+					  	})
+					  	.style("text-anchor","middle")
+					  	.style("fill", "#161616")
+						.attr("xlink:href", "#tree-" + d.treeID + "-rank-" + d.rank)
+						.text(d.translationD);
+				});
 		}//if
 
-		for(var i = 0; i < numSmallCircle; i++) {
-			var offsetX = 0.5;
-			//In case there is anything left for the last row that isn't exactly numPerRow
-			if(i >= numSmallCircle - remainingCircle) offsetX = (numPerRow - remainingCircle) * offsetX + offsetX;
+		//Add the smaller text to both sides back in & the text for the smaller circles
+		svg.selectAll(".ring").select(".ring-text")
+		    .each(function(d,i) {
+		    	var el = d3.select(this);
 
-			gridPos.push({
-				x: round2(-extraWidth/2 + remainingWidth + offsetX*circleTotalWidth + i%numPerRow * circleTotalWidth),
-				y: round2(yOffset + Math.floor(i/numPerRow) * circleTotalHeight)
-			});
+				//Find and save the width of one word
+	        	d.textWidth = round2(this.getComputedTextLength());
+	        	//Get the length of the path
+		        d.pathLength = round2(document.getElementById("tree-" + d.treeID + "-rank-" + d.rank).getTotalLength());
 
-		}//for i
+		        if(d.chosen) {	
+		        	d.textWidthBold = textWidthBold[i];
+					//The offset to start the text
+					var textOffset = (d.textWidthBold/d.pathLength*100/2);
+					//How often does the text fit in the remaining path
+					var textFit = Math.round( ((50 - textOffset)/100 * d.pathLength) / d.textWidth ) + 1;
+					//console.log(textFit, d.textWidth, textWidthBold[i], d.pathLength, ((50 - textOffset)/100 ))
+					
+					//Add a path for the before text
+		        	el.append("textPath")
+						.attr("class", "ring-text-normal circle-front")
+					  	.attr("startOffset", function(t) {
+					  		t.startOffsetFront = round2(50 - textOffset);
+					  		return (t.startOffsetFront+extraOffset) + "%";
+					  	})
+					  	.style("text-anchor","end")
+					  	.style("fill", "#afafaf")
+						.attr("xlink:href", "#tree-" + d.treeID + "-rank-" + d.rank)
+						.text(new Array(textFit).join( '\u00A0\u00A0' + d.translationD + '\u00A0\u00A0' ));
+					//Add a path for the after text
+		        	el.append("textPath")
+						.attr("class", "ring-text-normal circle-end")
+					  	.attr("startOffset", function(t) {
+					  		t.startOffsetEnd = round2(50 + textOffset);
+					  		return (t.startOffsetEnd+extraOffset) + "%";
+					  	})
+					  	.style("text-anchor","start")
+					  	.style("fill", "#afafaf")
+						.attr("xlink:href", "#tree-" + d.treeID + "-rank-" + d.rank)
+						.text(new Array(textFit).join( '\u00A0\u00A0' + d.translationD + '\u00A0\u00A0' ));
+				} else {
+		        	//How often does the text fit in the remaining path
+		        	var textFit = Math.round( d.pathLength / (d.textWidth - 3*spaceWidth) ) + 2;
+		        	//console.log(textFit, d.textWidth, 3*spaceWidth, d.pathLength);
+					el.append("textPath")
+						.attr("class", "ring-text-normal")
+					  	.attr("startOffset", "50%")
+					  	.style("text-anchor", "middle")
+					  	.style("fill", "#afafaf")
+						.attr("xlink:href", "#tree-" + d.treeID + "-rank-" + d.rank)
+						.text(new Array(textFit).join( d.translationD + ' ' ));
+		        }//else
+		    });
 
-		return gridPos;
-	}//calculateGrid
+	}//function updateTextPaths
 
 	///////////////////////////////////////////////////////////////////////////
-	/////////////////// Change positions and sizes on resize //////////////////
+	////////////////////////////// Change on resize ///////////////////////////
 	///////////////////////////////////////////////////////////////////////////
 
 	function resizeTreeRings() {
 		console.log("resize tree ring");
 
-		var divWidth = parseInt(d3.select("#viz-tree-ring").style("width"));
+		var svgBig = d3.select("#tree-ring-svg-big").select(".tree-ring-group");
+		var svgMini = d3.select("#viz-tree-ring-mini").selectAll(".tree-ring-group");
 
-		var marginSize = Math.round(marginScale(divWidth));
+		var divWidth = parseInt(d3.select("#viz-tree-ring").style("width"));
+		var windowHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+		var size = Math.min(divWidth, windowHeight * 0.8);
+
+		//Adjust the big circle
+		var marginSize = Math.round(marginScale(size));
 		var margin = {
-		  top: marginSize,
+		  top: marginSize*1.25,
 		  right: marginSize,
-		  bottom: marginSize,
+		  bottom: marginSize*3,
 		  left: marginSize 
 		};
-		var width = divWidth - margin.left - margin.right;
-		var height = width;
+		var widthBig = size - margin.left - margin.right;
+		var heightBig = widthBig;
 
-		//Adjust SVG container
-		svg.attr("width", width + margin.left + margin.right);
-		g.attr("transform", "translate(" + (margin.left) + "," + (margin.top) + ")");
-
-		//Update the scales
-		var radiusBigCircle = Math.min(300, width/2);
-		var radiusSmallCircles = Math.min(40, width/3);
+		//Update the scales of the big circle
+		var radiusBigCircle = Math.min(300, widthBig/2);
 		radiusScale.range([radiusBigCircle, radiusBigCircle*0.2]);
+
+		//Adjust SVG container of the big circle
+		d3.select("#tree-ring-svg-big")
+			.attr("width", widthBig + margin.left + margin.right)
+			.attr("height", heightBig + margin.top + margin.bottom);
+		svgBig
+			.attr("transform", "translate(" + (margin.left + widthBig/2) + "," + (margin.top + heightBig/2) + ")")
+			.style("font-size", round2(fontScale(size)) + "px");
+
+		//Adjust sizes of the small circles
+		var radiusSmallCircles = round2(Math.min(50, Math.max(30, divWidth/10)));
 		radiusScaleSmall.range([radiusSmallCircles, radiusSmallCircles * 0.2]);
 
-		//Update the grid locations
-		gridPos = calculateGrid(numLanguages - 1, radiusScaleSmall(1), radiusScale(1), width);
+		var marginSizeMini = Math.round(marginScaleMini(radiusSmallCircles));
+		var marginMini = {
+		  top: marginSizeMini + 20,
+		  right: marginSizeMini,
+		  bottom: marginSizeMini,
+		  left: marginSizeMini 
+		};
+		var widthMini = 2*radiusSmallCircles;
+		var heightMini = 2*radiusSmallCircles;
 
-		//Set correct height again
-		svg.attr("height", (gridPos[gridPos.length-1].y + radiusScaleSmall(1)) + margin.top + margin.bottom);
+		d3.selectAll(".tree-ring-mini")
+			.attr("width", widthMini + marginMini.left + marginMini.right)
+			.attr("height", heightMini + marginMini.top + marginMini.bottom)
+		svgMini
+			.attr("transform", "translate(" + (marginMini.left + widthMini/2) + "," + (marginMini.top + heightMini/2) + ")")
+			.style("font-size", round2(fontScale(size)) + "px");
 
-		//Update the positions of the language rings
-		var gridCounter = 0;
-		svg.selectAll(".tree")
-			.attr("transform", function(d,i) {
-				if(d.chosen) {
-					return "translate(" + gridPos[0].x + "," + gridPos[0].y + ")";
-				} else {
-					gridCounter += 1;
-					return "translate(" + gridPos[gridCounter].x + "," + gridPos[gridCounter].y + ")";
-				}//else
-			});
+		// ------------------------ Update positions and paths --------------------------- //
 
-		//Move the language title
-		svg.selectAll(".ring-center-text")
-			.attr("y", function(d) { return d.chosen ? 0 : -radiusScaleSmall(1)*1.6; })
-			.style("font-size", function(d) { return d.chosen ? bigFontScale(width) + "px" : smallFontScale(width) + "px"; });
-		//Move the rank locations
-		svg.selectAll(".ring-rank-group").attr("transform", "translate(" + gridPos[0].x + "," + gridPos[0].y + ")");
-		svg.selectAll(".ring-rank").attr("y", function(d) { return radiusScale(d); });
+		//Move the position number locations of the big circle
+		svgBig.selectAll(".ring-rank").attr("y", function(d) { return radiusScale(d); });
 
-		//Update the paths of the language rings
-		svg.selectAll(".tree").selectAll(".ring-path")
+		//Update the locations of the languages above the mini circle
+		svgMini.selectAll(".ring-center-text.small").attr("y", -radiusScaleSmall(1)*1.6);
+
+		//Update the paths of the big circle
+		svgBig.selectAll(".ring-path")
 			.attr("d", function(d,i) {
-				var radius = d.chosen ? radiusScale(d.rank) : radiusScaleSmall(d.rank);
-				var open = d.chosen ? openScale(d.rank) : 1;
-				return "M" + round2(radius*Math.cos(open*Math.PI/180 + Math.PI/2)) + "," + round2(radius*Math.sin(open*Math.PI/180 + Math.PI/2)) + 
+				var radius = radiusScale(d.rank);
+				var open = openScale(d.rank);
+				return  "M" + round2(radius*Math.cos(open*Math.PI/180 + Math.PI/2)) + "," + round2(radius*Math.sin(open*Math.PI/180 + Math.PI/2)) + 
 						"A" + round2(radius) + "," + round2(radius) + " 0 1,1 " + 
 						round2(radius*Math.cos(-open*Math.PI/180 + Math.PI/2)) + "," + round2(radius*Math.sin(-open*Math.PI/180 + Math.PI/2));
 			});
+
+		//Update the paths of the small circles
+		svgMini.selectAll(".ring-path")
+			.attr("d", function(d,i) {
+				var radius = radiusScaleSmall(d.rank);
+				var open = 1;
+				return  "M" + round2(radius*Math.cos(open*Math.PI/180 + Math.PI/2)) + "," + round2(radius*Math.sin(open*Math.PI/180 + Math.PI/2)) + 
+						"A" + round2(radius) + "," + round2(radius) + " 0 1,1 " + 
+						round2(radius*Math.cos(-open*Math.PI/180 + Math.PI/2)) + "," + round2(radius*Math.sin(-open*Math.PI/180 + Math.PI/2));
+			});
+
+		// -------- Recalculate the number of words needed to fill all the circles ------- //
+
+		updateTextPaths(1, 0, 0, 0);
 
 	}//resizeTreeRings
 
-	///////////////////////////////////////////////////////////////////////////
-	///////////////////////////// Switch on click /////////////////////////////
-	///////////////////////////////////////////////////////////////////////////
-
-	function switchChosenLanguage(d) {
-
-		chosenLanguage = d.key;
-		console.log(chosenLanguage);
-
-		var gridCounter = 0;
-		svg.selectAll(".tree")
-			.each(function(d) { d.chosen = d.key === chosenLanguage ? 1 : 0; })
-			.transition().duration(1000)
-			.attr("transform", function(d,i) {
-				if(d.chosen) {
-					return "translate(" + gridPos[0].x + "," + gridPos[0].y + ")";
-				} else {
-					gridCounter += 1;
-					return "translate(" + gridPos[gridCounter].x + "," + gridPos[gridCounter].y + ")";
-				}//else
-			});
-
-		//Append text for the language
-		svg.selectAll(".ring-center-text")
-			.transition().duration(1000)
-			.attr("y", function(d) { return d.chosen ? 0 : -radiusScaleSmall(1)*1.6; })
-			.style("fill", function(d) { return d.chosen ? "#cfcece" : "#161616"; })
-			.style("font-size", function(d) { return d.chosen ? bigFontScale(width) + "px" : smallFontScale(width) + "px"; });
-
-		svg.selectAll(".tree").selectAll(".ring")
-			.each(function(d) { d.chosen = d.language === chosenLanguage ? 1 : 0; });
-
-		svg.selectAll(".tree").selectAll(".ring-path")
-			.transition().duration(1000)
-			.attr("d", function(d,i) {
-				var radius = d.chosen ? radiusScale(d.rank) : radiusScaleSmall(d.rank);
-				var open = d.chosen ? openScale(d.rank) : 1;
-				return "M" + round2(radius*Math.cos(open*Math.PI/180 + Math.PI/2)) + "," + round2(radius*Math.sin(open*Math.PI/180 + Math.PI/2)) + 
-						"A" + round2(radius) + "," + round2(radius) + " 0 1,1 " + 
-						round2(radius*Math.cos(-open*Math.PI/180 + Math.PI/2)) + "," + round2(radius*Math.sin(-open*Math.PI/180 + Math.PI/2));
-			});
-
-		svg.selectAll(".tree").selectAll(".ring-text")
-			.transition().duration(1000)
-			.style("fill", function(d) { return d.chosen ? "#161616" : "#afafaf"; });
-
-		// svg.selectAll(".tree")
-		// 	.filter(function(d) { return d.chosen; })
-		// 	.selectAll(".ring-text")
-		// 	.select("textPath").text(function(d) { return new Array(80).join( d.translation + '\u00A0\u00A0\u00A0' ); });
-
-
-	}//switchChosenLanguage
-
+}//function createTreeRings 
 
 ///////////////////////////////////////////////////////////////////////////
 /////////////////////////// Extra functions ///////////////////////////////
@@ -355,3 +545,14 @@ d3.select(window).on('resize', resizeTreeRings);
 function round2(num) {
 	return (Math.round((num + 0.00001) * 100)/100);
 }//round2
+
+//Function to only run once after the last transition ends
+function endall(transition, callback) { 
+	var n = 0; 
+	transition 
+		.each(function() { ++n; }) 
+		.each("end", function() { if (!--n) callback.apply(this, arguments); }); 
+}//endall
+
+
+

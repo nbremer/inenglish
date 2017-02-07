@@ -15,7 +15,7 @@
 
 		<meta property="og:title" content="in English — by Google News Lab and Visual Cinnamon"> 
 		<meta property="og:site_name" content="in English"> 
-		<meta property="og:url" content="http://in_english.com/"> <!-- http://in_english.com/  http://inengli.sh/ http://in-engli.sh/ -->
+		<meta property="og:url" content="http://in_english.com/"> <!-- http://in_english.com/  http://inengli.sh/ http://in-engli.sh/ http://beautifulinenglish.com/ -->
 		<meta property="og:description" content="...">
 		<meta property="og:type" content="website">
 		<meta property="og:locale" content="en_US"> 
@@ -67,7 +67,7 @@
 
 		<!-- Google fonts -->
 		<link href="https://fonts.googleapis.com/css?family=Dancing+Script&amp;subset=latin-ext" rel="stylesheet">
-		<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700&amp;subset=latin-ext" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css?family=Lato:300,400,400i,700&amp;subset=latin-ext" rel="stylesheet">
 
 		<!-- JS -->
 		<script src="js/d3.v4.min.js"></script>
@@ -76,31 +76,39 @@
 
     <body>
 
+   		<!-- Introduction with the most common translated word -->
     	<div id="title-section" class="container">
-    		<!-- Introduction with the most common translated word -->
     		<div class="row justify-content-center">
     			<div class="col-12 col-lg-8">
     				<div class="title">
 	    				<h1><span class="quote-lato"> “</span>Beautiful<span class="quote-lato"> ”</span></h1>
-	    				<h3 class="subtitle">is the most common word translated through Google</h3>
+	    				<h3 class="subtitle">is the most common word translated to English with Google</h3>
 	    				<h5 class="subtitle-small">when looking only at nouns and their adjectives</h5>
 	    			</div>
 	    			<div class="body-text">
-	    				<p>An introduction. Lorem ipsum dolor sit amet, in affert petentium vituperatoribus mel, in pro facer ubique lobortis. An nulla maiestatis definitiones vix, nec ponderum ocurreret et. Soleat graece habemus ne per, nibh euismod detracto vel at. In dicta postea pertinacia mei. Cu vis augue meliore civibus, in duo congue inermis noluisse, fuisset omnesque id duo.</p>
+	    				<p>If we take out the <i>hello's</i>, <i>thank you's</i>, <i>I's</i>, <i>he's</i>, <i>no's</i> and such terms we are left with an interesting collection of nouns (e.g. <i>house</i>, <i>dog</i>, <i>place</i>) and their adjectives (e.g. <i>easy</i>, <i>intelligent</i>, <i>adorable</i>; saying something about a noun). Lorem ipsum dolor sit amet, in affert petentium vituperatoribus mel, in pro facer ubique lobortis. An nulla maiestatis definitiones vix, nec ponderum ocurreret et. Soleat graece habemus ne per, nibh euismod detracto vel at. In dicta postea pertinacia mei.</p>
 	    				<p>Mea at tale oratio prompta. Et quo paulo adipisci postulant, ea esse possit virtute cum. Vel an soluta necessitatibus, delectus signiferumque id est. Cum no vitae partiendo. Nobis mediocritatem pro id, ei congue reformidans nec. Ad eum alia platonem.</p>
 	    			</div>
 	    		</div>
     		</div>
+    	</div>
 
-    		<!-- Word ring with top 10 per language -->
+    	<!-- Word rings with top 10 per language -->
+    	<div id="tree-ring-section" class="container">
     		<div class="row justify-content-center">
     			<div class="col-12 col-lg-8">
-    				<div id="viz-tree-ring"></div>
+    				<!-- Title above the main circle -->
+    				<div id="viz-tree-ring-title" class="chart-top-title"> <!-- &#11089; -->
+    					The top 10 words that are translated from <span id="tree-ring-language-title">German</span> into English<sup style="font-size: 0.5em;">&#8251;</sup>
+    				</div>
+    				<!-- Big chosen language ring -->
+    				<div id="viz-tree-ring" class="tree-ring"></div>
+    				<!-- Small language rings -->
+    				<div id="viz-tree-ring-mini" class="tree-ring flex-wrap-center" style="margin-top: 10px;"></div>
 	    		</div>
     		</div>
     	</div>
 
-        <div id="chart"></div>
         <script src="js/treering.js"></script>
     </body>
 </html>
