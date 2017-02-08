@@ -228,7 +228,9 @@ function createTreeRings() {
 		var textRing = ring.append("text")
 			.attr("class", function(d) { return "ring-text noselect rank-" + d.rank; })
 			.style("fill", "none")
-			.text(function(d) { return '\u00A0\u00A0' + d.translationD + '\u00A0\u00A0'; });
+			.text(function(d) { 
+				return '\u00A0\u00A0' + (d.treeID === 0 ? d.originalD : d.translationD) + '\u00A0\u00A0'; 
+			});
 
 		//Create the textPaths that run in circles
 		updateTextPaths(1,0,0,0);
@@ -354,13 +356,19 @@ function createTreeRings() {
 		} else if (doBig) {
 			var svg = d3.select("#tree-ring-svg-big").select(".tree-ring-group");
 			//Update the hidden text to get the proper text widths
-			svg.selectAll(".ring-text:not(#space-width), .ring-text-bold")
+			svg.selectAll(".ring-text-bold")
 				.text(function(d) { return '\u00A0\u00A0' + d.translationD + '\u00A0\u00A0'; });
+			svg.selectAll(".ring-text:not(#space-width)")
+				.style("font-family", function(d) { return d.languageD === "ru" ? "'Cormorant Infant', serif" : null; })
+				.text(function(d) { return '\u00A0\u00A0' + d.originalD + '\u00A0\u00A0'; });
 		} else {
 			var svg = d3.select(".tree-group-ID-" + doSmall);
 			//Update the hidden text to get the proper text widths
 			svg.selectAll(".ring-text")
-				.text(function(d) { return '\u00A0\u00A0' + d.translationD + '\u00A0\u00A0'; }); 
+				.style("font-family", null)
+				.text(function(d) { 
+					return '\u00A0\u00A0' + (d.treeID === 0 ? d.originalD : d.translationD) + '\u00A0\u00A0'; 
+				});
 		}//else
 
 		//Remove all the text paths, because we need to recalculate the text lengths
@@ -415,7 +423,7 @@ function createTreeRings() {
 					  	.style("text-anchor","end")
 					  	.style("fill", "#afafaf")
 						.attr("xlink:href", "#tree-" + d.treeID + "-rank-" + d.rank)
-						.text(new Array(textFit).join( '\u00A0\u00A0' + d.translationD + '\u00A0\u00A0' ));
+						.text(new Array(textFit).join( '\u00A0\u00A0' + d.originalD + '\u00A0\u00A0' ));
 					//Add a path for the after text
 		        	el.append("textPath")
 						.attr("class", "ring-text-normal circle-end")
@@ -426,7 +434,7 @@ function createTreeRings() {
 					  	.style("text-anchor","start")
 					  	.style("fill", "#afafaf")
 						.attr("xlink:href", "#tree-" + d.treeID + "-rank-" + d.rank)
-						.text(new Array(textFit).join( '\u00A0\u00A0' + d.translationD + '\u00A0\u00A0' ));
+						.text(new Array(textFit).join( '\u00A0\u00A0' + d.originalD + '\u00A0\u00A0' ));
 				} else {
 		        	//How often does the text fit in the remaining path
 		        	var textFit = Math.round( d.pathLength / (d.textWidth - 3*spaceWidth) ) + 2;

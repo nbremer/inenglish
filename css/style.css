@@ -74,6 +74,10 @@ svg {
           	justify-content: center;
 }
 
+.cyrillic {
+	font-family: 'Cormorant Infant', serif;
+}
+
 /* ------ title section ------ */
 
 @media screen and (max-width: 320px) {
