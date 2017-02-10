@@ -1,16 +1,22 @@
 
- 
-window.onload = createTreeRings;
 
 function createTreeRings() {
 
-	d3.select(window).on('resize', resizeTreeRings);
+	d3.select(window).on('resize', function() {
+		//Only resize if the width is changed, not the height
+		//Otherwise you get odd behavior on mobile due to url bar appearing and disappearing
+		if(window.innerWidth !== currentWidth) {
+			currentWidth = window.innerWidth;
+			resizeTreeRings();
+		};
+	});//on resize
 
 	///////////////////////////////////////////////////////////////////////////
 	//////////////////////////// Set up the SVG ///////////////////////////////
 	///////////////////////////////////////////////////////////////////////////
 
-	var divWidth = parseInt(d3.select("#viz-tree-ring").style("width"));
+	var divWidth = parseInt(d3.select("#viz-tree-ring").style("width")),
+		currentWidth = window.innerWidth;
 	var windowHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
 	var size = Math.min(divWidth, windowHeight * 0.8);
 
@@ -21,9 +27,9 @@ function createTreeRings() {
 	//Sizes of the big circle
 	var marginSize = Math.round(marginScale(size));
 	var margin = {
-	  top: marginSize*1.25,
+	  top: Math.min(marginSize*3, 40),
 	  right: marginSize,
-	  bottom: marginSize*3,
+	  bottom: Math.min(marginSize*3, 40),
 	  left: marginSize 
 	};
 	var widthBig = size - margin.left - margin.right;
@@ -67,8 +73,13 @@ function createTreeRings() {
 	languageMap["tr"] = "Turkish";
 	languageMap["all"] = "All languages";
 
-	var chosenLanguage = "de";
+	var chosenLanguage = "all";
+
 	var spaceWidth;
+
+	var darkgrey = "#161616",
+		middlegrey = "#a7a7a7",
+		lightgrey = "#afafaf";
 
 	var radiusScale = d3.scaleLinear()
 		.domain([1,10])
@@ -161,7 +172,7 @@ function createTreeRings() {
 			.attr("class", "ring-center-text small noselect")
 			.attr("y", -radiusScaleSmall(1)*1.6)
 			.attr("dy", "0.25em")
-			.style("fill", "#161616")
+			.style("fill", darkgrey)
 			.text(function(d,i) { return languageMap[d.key]; });
 
 		//Create a group for each ring
@@ -180,6 +191,7 @@ function createTreeRings() {
 			});
 
 		//Create the path along which the text can flow later
+		//Because Safari can't handle startOffsets outside of 0-100, add extra sections that are invisible
 		var ringPath = ring.append("path")
 			.attr("class", "ring-path")
 			.attr("id", function(d) { return "tree-" + d.treeID + "-rank-" + d.rank; })
@@ -187,9 +199,8 @@ function createTreeRings() {
 			.attr("d", function(d,i) {
 				var radius = d.chosen ? radiusScale(d.rank) : radiusScaleSmall(d.rank);
 				var open = d.chosen ? openScale(d.rank) : 1;
-				return "M" + round2(radius*Math.cos(open*Math.PI/180 + Math.PI/2)) + "," + round2(radius*Math.sin(open*Math.PI/180 + Math.PI/2)) + 
-						"A" + round2(radius) + "," + round2(radius) + " 0 1,1 " + 
-						round2(radius*Math.cos(-open*Math.PI/180 + Math.PI/2)) + "," + round2(radius*Math.sin(-open*Math.PI/180 + Math.PI/2));
+				var path = createCirclePath(d, radius, open, radiusBigCircle);
+				return path;
 			});
 
 		//Add position number to the big circle
@@ -201,6 +212,7 @@ function createTreeRings() {
 			.attr("class", "ring-rank noselect")
 			.attr("y", function(d) { return radiusScale(d); })
 			.attr("dy", "0.5em")
+			.style("fill", darkgrey)
 			.text(function(d) { return d === 0 ? "position" : d; });
 
 		///////////////////////////////////////////////////////////////////////////
@@ -258,12 +270,12 @@ function createTreeRings() {
 				.style("color", "white")
 				.on("end", function() {
 					var text = chosenLanguage !== "all" ? languageMap[chosenLanguage] : "all 10 languages combined";
-					var size = chosenLanguage !== "all" ? "1.3em" : "1.2em";
+					var size = chosenLanguage !== "all" ? "1.3em" : "1em";
 					d3.select(this)
 						.style("font-size", size)
 						.text(text)
 						.transition().duration(500)
-						.style("color", "#161616");
+						.style("color", darkgrey);
 				});
 
 			///////////////////////////////////////////////////////////////////////////
@@ -292,7 +304,7 @@ function createTreeRings() {
 					d3.select(this)
 						.text(languageMap[oldLanguage])
 						.transition().duration(500)
-						.style("fill", "#161616");
+						.style("fill", darkgrey);
 				});
 			//And then update the text paths of the small circle as well
 			setTimeout(function() {
@@ -311,9 +323,10 @@ function createTreeRings() {
 			}//function rotateTransition
 
 			//Rotate the texts out
-			rotateTransition("circle-front", "startOffsetFront", 120);
-			rotateTransition("circle-middle", "startOffsetMiddle", 120);
-			rotateTransition("circle-end", "startOffsetEnd", 120);
+			var offset = 35;
+			rotateTransition("circle-front", "startOffsetFront", offset);
+			rotateTransition("circle-middle", "startOffsetMiddle", offset);
+			rotateTransition("circle-end", "startOffsetEnd", offset);
 
 			//Update the texts along the paths
 			setTimeout(updateText, durationTimes[durationTimes.length - 1] + delayTimes[delayTimes.length - 1]);
@@ -329,7 +342,7 @@ function createTreeRings() {
 					});
 
 				//Update the textPaths
-				updateTextPaths(0, 1, 0, -120);
+				updateTextPaths(0, 1, 0, -offset);
 
 				//Move the paths back in again
 				rotateTransition("circle-front", "startOffsetFront", 0);
@@ -389,7 +402,7 @@ function createTreeRings() {
 					  		return (t.startOffsetMiddle+extraOffset) + "%";
 					  	})
 					  	.style("text-anchor","middle")
-					  	.style("fill", "#161616")
+					  	.style("fill", darkgrey)
 						.attr("xlink:href", "#tree-" + d.treeID + "-rank-" + d.rank)
 						.text(d.translationD);
 				});
@@ -406,9 +419,10 @@ function createTreeRings() {
 		        d.pathLength = round2(document.getElementById("tree-" + d.treeID + "-rank-" + d.rank).getTotalLength());
 
 		        if(d.chosen) {	
+		        	d.pathLength = d.pathLength/5;
 		        	d.textWidthBold = textWidthBold[i];
 					//The offset to start the text
-					var textOffset = (d.textWidthBold/d.pathLength*100/2);
+					var textOffset = (d.textWidthBold/d.pathLength*100/2) / 5;
 					//How often does the text fit in the remaining path
 					var textFit = Math.round( ((50 - textOffset)/100 * d.pathLength) / d.textWidth ) + 1;
 					//console.log(textFit, d.textWidth, textWidthBold[i], d.pathLength, ((50 - textOffset)/100 ))
@@ -421,7 +435,7 @@ function createTreeRings() {
 					  		return (t.startOffsetFront+extraOffset) + "%";
 					  	})
 					  	.style("text-anchor","end")
-					  	.style("fill", "#afafaf")
+					  	.style("fill", middlegrey)
 						.attr("xlink:href", "#tree-" + d.treeID + "-rank-" + d.rank)
 						.text(new Array(textFit).join( '\u00A0\u00A0' + d.originalD + '\u00A0\u00A0' ));
 					//Add a path for the after text
@@ -432,7 +446,7 @@ function createTreeRings() {
 					  		return (t.startOffsetEnd+extraOffset) + "%";
 					  	})
 					  	.style("text-anchor","start")
-					  	.style("fill", "#afafaf")
+					  	.style("fill", middlegrey)
 						.attr("xlink:href", "#tree-" + d.treeID + "-rank-" + d.rank)
 						.text(new Array(textFit).join( '\u00A0\u00A0' + d.originalD + '\u00A0\u00A0' ));
 				} else {
@@ -443,13 +457,32 @@ function createTreeRings() {
 						.attr("class", "ring-text-normal")
 					  	.attr("startOffset", "50%")
 					  	.style("text-anchor", "middle")
-					  	.style("fill", "#afafaf")
+					  	.style("fill", lightgrey)
 						.attr("xlink:href", "#tree-" + d.treeID + "-rank-" + d.rank)
 						.text(new Array(textFit).join( d.translationD + ' ' ));
 		        }//else
 		    });
 
 	}//function updateTextPaths
+
+	///////////////////////////////////////////////////////////////////////////
+	////////////// Function to create custom circular SVG paths ///////////////
+	///////////////////////////////////////////////////////////////////////////
+
+	function createCirclePath(d, radius, open, radiusBigCircle) {
+		//Approximate length of the circle only path
+		var length = 2*Math.PI*radius * ((360-open)/360);
+
+		var path = "";
+		if(d.treeID === 0) path = path + "M" + -(3*radiusBigCircle+2*length) + "," + 0 + "L" + -(3*radiusBigCircle) + "," + 0;
+		path = path + 
+				" M" + round2(radius*Math.cos(open*Math.PI/180 + Math.PI/2)) + "," + round2(radius*Math.sin(open*Math.PI/180 + Math.PI/2)) + 
+				" A" + round2(radius) + "," + round2(radius) + " 0 1,1 " + 
+				round2(radius*Math.cos(-open*Math.PI/180 + Math.PI/2)) + "," + round2(radius*Math.sin(-open*Math.PI/180 + Math.PI/2));
+		if(d.treeID === 0) path = path + " M" + (3*radiusBigCircle) + "," + 0 + "L" + (3*radiusBigCircle+2*length) + "," + 0;
+
+		return path;
+	}//function createCirclePath
 
 	///////////////////////////////////////////////////////////////////////////
 	////////////////////////////// Change on resize ///////////////////////////
@@ -468,9 +501,9 @@ function createTreeRings() {
 		//Adjust the big circle
 		var marginSize = Math.round(marginScale(size));
 		var margin = {
-		  top: marginSize*1.25,
+		  top: Math.min(marginSize*3, 40),
 		  right: marginSize,
-		  bottom: marginSize*3,
+		  bottom: Math.min(marginSize*3, 40),
 		  left: marginSize 
 		};
 		var widthBig = size - margin.left - margin.right;
@@ -522,9 +555,8 @@ function createTreeRings() {
 			.attr("d", function(d,i) {
 				var radius = radiusScale(d.rank);
 				var open = openScale(d.rank);
-				return  "M" + round2(radius*Math.cos(open*Math.PI/180 + Math.PI/2)) + "," + round2(radius*Math.sin(open*Math.PI/180 + Math.PI/2)) + 
-						"A" + round2(radius) + "," + round2(radius) + " 0 1,1 " + 
-						round2(radius*Math.cos(-open*Math.PI/180 + Math.PI/2)) + "," + round2(radius*Math.sin(-open*Math.PI/180 + Math.PI/2));
+				var path = createCirclePath(d, radius, open, radiusBigCircle);
+				return path;
 			});
 
 		//Update the paths of the small circles
@@ -532,9 +564,8 @@ function createTreeRings() {
 			.attr("d", function(d,i) {
 				var radius = radiusScaleSmall(d.rank);
 				var open = 1;
-				return  "M" + round2(radius*Math.cos(open*Math.PI/180 + Math.PI/2)) + "," + round2(radius*Math.sin(open*Math.PI/180 + Math.PI/2)) + 
-						"A" + round2(radius) + "," + round2(radius) + " 0 1,1 " + 
-						round2(radius*Math.cos(-open*Math.PI/180 + Math.PI/2)) + "," + round2(radius*Math.sin(-open*Math.PI/180 + Math.PI/2));
+				var path = createCirclePath(d, radius, open, radiusBigCircle);
+				return path;
 			});
 
 		// -------- Recalculate the number of words needed to fill all the circles ------- //

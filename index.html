@@ -67,7 +67,7 @@
 
 		<!-- Google fonts -->
 		<link href="https://fonts.googleapis.com/css?family=Dancing+Script&amp;subset=latin-ext" rel="stylesheet">
-		<link href="https://fonts.googleapis.com/css?family=Lato:300,400,400i,700&amp;subset=latin-ext" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css?family=Lato:300,400,400i,800&amp;subset=latin-ext" rel="stylesheet">
 		<!-- Cyrillic -->
 		<link href="https://fonts.googleapis.com/css?family=Cormorant+Infant&amp;subset=cyrillic" rel="stylesheet">
 
@@ -78,9 +78,10 @@
 
     <body>
 
-   		<!-- Introduction with the most common translated word -->
-    	<div id="title-section" class="container">
-    		<div class="row justify-content-center">
+    	<div class="container">
+
+    		<!-- Introduction with the most common translated word -->
+    		<div id="title-section" class="row justify-content-center">
     			<div class="col-12 col-lg-8">
     				<div class="title">
 	    				<h1><span class="quote-lato"> “</span>Beautiful<span class="quote-lato"> ”</span></h1>
@@ -88,29 +89,66 @@
 	    				<h5 class="subtitle-small">when looking only at nouns and their adjectives</h5>
 	    			</div>
 	    			<div class="body-text">
-	    				<p>If we take out the <i>hello's</i>, <i>thank you's</i>, <i>I's</i>, <i>he's</i>, <i>no's</i> and such terms we are left with an interesting collection of nouns (e.g. <i>house</i>, <i>dog</i>, <i>place</i>) and their adjectives (e.g. <i>easy</i>, <i>intelligent</i>, <i>adorable</i>; saying something about a noun). Lorem ipsum dolor sit amet, in affert petentium vituperatoribus mel, in pro facer ubique lobortis. An nulla maiestatis definitiones vix, nec ponderum ocurreret et. Soleat graece habemus ne per, nibh euismod detracto vel at. In dicta postea pertinacia mei.</p>
-	    				<p>Mea at tale oratio prompta. Et quo paulo adipisci postulant, ea esse possit virtute cum. Vel an soluta necessitatibus, delectus signiferumque id est. Cum no vitae partiendo. Nobis mediocritatem pro id, ei congue reformidans nec. Ad eum alia platonem.</p>
+	    				<p>How much does the translation behavior of a language indicate about its culture? Do German speakers seek the same words translated as the Spanish? To investigate, we've taken all the <span class="bold">single word translations of nouns<sup class="up-note">1</sup> & adjectives<sup class="up-note">2</sup> into English</span>, requested through Google translate, from 10 of the most popular languages found on Google. For example, the most common word translated from Russian into English is <i>mama</i>, while many French speakers want to know the translation of <i>bien</i> into English, meaning <i>good</i>.</p>
+
+	    				<p class="footnote">
+	    					<sup class="up-note">1</sup> e.g. <i>house</i>, <i>dog</i>, <i>place</i></br>
+	    					<sup class="up-note">2</sup> e.g. <i>easy</i>, <i>intelligent</i>, <i>adorable</i>; saying something about a noun
+	    				</p>
+	    				
+	    				<p><span class="google">Google Translate</span> is used my millions of people around the World. If we take out all the <i>hello's</i>, <i>thank you's</i>, <i>I, we, she's</i>, <i>no's</i>, <i>but's</i> and similar grammatical types of words we are left with an interesting collection of nouns and their adjectives that people want translated.</p>
+
+
 	    			</div>
 	    		</div>
     		</div>
-    	</div>
 
-    	<!-- Word rings with top 10 per language -->
-    	<div id="tree-ring-section" class="container">
-    		<div class="row justify-content-center">
+    		<!-- Top word per language, with language string -->
+    		<div id="word-snake-section" class="row justify-content-center chart">
+    			<div class="col-12 col-lg-8">
+    				<!-- The snake like viz -->
+    				<div id="viz-word-snake"></div>
+	    		</div>
+    		</div>
+
+    		<div id="before-tree-ring-text" class="row justify-content-center">
+    			<div class="col-12 col-lg-8">
+	    			<div class="body-text">
+	    				<p>Diving even deeper and looking at the top 10 most translated words some interesting differences arise between the chosen languages. The days of the week are quite popular, especially in Spanish & Italian. For the French, <i>monsieur</i> is on 6<sup style="font-size: 0.6em;">th</sup> place, which Google translates to <i>gentleman</i>, seemingly quite fitting for their culture. Luckily, the most often translated word across all languages is the wonderful word <i>beautiful</i>, or, as they say in <span id="beautiful-lang" class="beautiful-rotate">German</span>, <span id="beautiful-word" class="beautiful-rotate" style="font-style: italic; white-space: pre;">schon    </span></p>
+	    			</div>
+	    		</div>
+    		</div>
+
+    		<!-- Word rings with top 10 per language -->
+    		<div id="tree-ring-section" class="row justify-content-center chart">
     			<div class="col-12 col-lg-8">
     				<!-- Title above the main circle -->
-    				<div id="viz-tree-ring-title" class="chart-top-title"> <!-- &#11089; -->
-    					The top 10 words that are translated from <span id="tree-ring-language-title">German</span> into English<sup style="font-size: 0.5em;">&#8251;</sup>
+    				<div id="viz-tree-ring-title" class="chart-title"> <!-- &#11089; -->
+    					<div class="chart-top-title">The top 10 words that are translated from <span id="tree-ring-language-title">all 10 languages combined</span> into English<sup style="font-size: 0.5em;">&#8251;</sup></div>
     				</div>
     				<!-- Big chosen language ring -->
     				<div id="viz-tree-ring" class="tree-ring"></div>
+    				<!-- Instructions for small rings -->
+    				<div id="viz-tree-ring-instructions" class="chart-title">
+    					<div class="chart-sub-title">Select a different language to see its top 10</div>
+    				</div>
     				<!-- Small language rings -->
     				<div id="viz-tree-ring-mini" class="tree-ring flex-wrap-center" style="margin-top: 10px;"></div>
 	    		</div>
     		</div>
+
     	</div>
 
+
+		<script src="js/loopBeautiful.js"></script>
+    	<script src="js/wordsnake.js"></script>
         <script src="js/treering.js"></script>
+
+        <script>
+        	window.onload = function() {
+        		loopBeautiful();
+        		createTreeRings();
+        	}
+        </script>
     </body>
 </html>

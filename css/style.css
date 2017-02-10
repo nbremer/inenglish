@@ -43,8 +43,12 @@ h6 {
 }
 .body-text p {
 	text-align: left;
-	font-size: 14px;
-	line-height: 1.45;
+	font-size: 16px;
+	line-height: 1.5;
+}
+
+.bold {
+	font-weight: 800;
 }
 
 svg {
@@ -76,6 +80,26 @@ svg {
 
 .cyrillic {
 	font-family: 'Cormorant Infant', serif;
+}
+
+.google {
+
+}
+
+.ds {
+	font-family: 'Dancing Script', cursive;
+}
+
+.up-note {
+	font-size: 0.6em;
+	font-style: italic;
+}
+
+.body-text .footnote {
+	font-size: 0.8em; 
+	color: #969696; 
+	line-height: 1.1em; 
+	margin-top: -0.9em;
 }
 
 /* ------ title section ------ */
@@ -126,31 +150,61 @@ svg {
 	color: #b5b5b5;
 }
 
-/* ------ Chart sub-titles ------ */
+/* ------ Charts in general ------ */
 
 @media screen and (max-width: 320px) {
-  	.chart-top-title { font-size: 16px !important; }
+  	.chart { font-size: 16px !important; }
 }
 @media screen and (min-width: 1000px) {
-  	.chart-top-title { font-size: 22px !important; }
+  	.chart { font-size: 22px !important; }
+}
+
+.chart {
+	font-size: calc(16px + (22 - 16) * (100vw - 320px)/(1000 - 320));
+	text-align: center;
+	cursor: default;
+	font-weight: 300;
+	line-height: 1.2em;
 }
 
 .chart-top-title {
 	font-family: 'Lato', sans-serif;
-	font-weight: 300;
-	font-size: calc(16px + (22 - 16) * (100vw - 320px)/(1000 - 320));
 	color: #696969;
-	text-align: center;
-	cursor: default;
-	margin-bottom: 1em;
+	/*margin-bottom: 1em;*/
+}
+
+.chart-sub-title {
+	font-size: 0.7em;
+	margin-bottom: 0.6em;
+	/*color: #a7a7a7;*/
+	color: #161616;
+}
+
+
+/* ------ Beautiful loop ------ */
+
+.beautiful-rotate {
+	/*font-style: italic;*/
+	color: #a7a7a7;
+	/*font-weight: 300;*/
 }
 
 /* ------ Tree ring chart ------ */
 
+#viz-tree-ring-title {
+	max-width: 600px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
 #tree-ring-language-title {
 	color: #161616;
 	font-weight: 400;
-	font-size: 1.3em;
+}
+
+#viz-tree-ring {
+	margin-bottom: 0.5em;
+	overflow: hidden;
 }
 
 @media screen and (max-width: 320px) {
@@ -172,7 +226,7 @@ svg {
 .ring-center-text {
 	font-family: 'Lato', sans-serif;
 	font-size: calc(14px + (16 - 14) * (100vw - 320px)/(800 - 320));
-	font-weight: 300;
+	/*font-weight: 300;*/
 	text-anchor: middle;
 }
 
@@ -181,7 +235,6 @@ svg {
 	font-size: 0.7em;
 	font-weight: 300;
 	text-anchor: middle;
-	fill: #afafaf;
 }
 
 .ring-text-normal {
