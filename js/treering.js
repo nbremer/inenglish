@@ -1,4 +1,6 @@
-
+///////////////////////////////////////////////////////////////////////////
+//////// Create the visualization with top 10 words per language //////////
+///////////////////////////////////////////////////////////////////////////
 
 function createTreeRings() {
 
@@ -15,14 +17,18 @@ function createTreeRings() {
 	//////////////////////////// Set up the SVG ///////////////////////////////
 	///////////////////////////////////////////////////////////////////////////
 
+	var marginScale = d3.scaleLinear()
+		.domain([320, 700])
+	    .range([10, 25]);
+
+	var marginScaleMini = d3.scaleLinear()
+		.domain([30, 50])
+	    .range([10, 25]);
+
 	var divWidth = parseInt(d3.select("#viz-tree-ring").style("width")),
 		currentWidth = window.innerWidth;
 	var windowHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
 	var size = Math.min(divWidth, windowHeight * 0.8);
-
-	var marginScale = d3.scaleLinear()
-		.domain([320, 700])
-	    .range([10, 25]);
 
 	//Sizes of the big circle
 	var marginSize = Math.round(marginScale(size));
@@ -40,10 +46,6 @@ function createTreeRings() {
 
 	//Radius of the smaller language circles
 	var radiusSmallCircles = round2(Math.min(45, Math.max(30, divWidth/10)));
-
-	var marginScaleMini = d3.scaleLinear()
-		.domain([30, 50])
-	    .range([10, 25]);
 
 	//Sizes of the small language circles
 	var marginSizeMini = Math.round(marginScaleMini(radiusSmallCircles));
@@ -109,7 +111,7 @@ function createTreeRings() {
 	///////////////////////////// Read the data ///////////////////////////////
 	///////////////////////////////////////////////////////////////////////////
 
-	d3.csv('data/top10_per_language.csv', function (error, data) {
+	d3.csv('data/top10_per_language_English_combined.csv', function (error, data) {
 
 		if (error) throw error;
 
@@ -261,9 +263,6 @@ function createTreeRings() {
 			var svgBig = d3.select("#tree-ring-svg-big").select(".tree-ring-group");
 			var svgSmall = d3.select(this).select(".tree-ring-group");
 
-			var durationTimes = [3500, 3250 ,3000, 2750, 2500, 2250, 2000, 1750, 1500, 1250]
-			var delayTimes = [0,500,950,1350,1700,2100,2350,2550,2700,2800,2850];
-
 			//Change the top title
 			d3.select("#tree-ring-language-title")
 				.transition().duration(1000)
@@ -315,18 +314,23 @@ function createTreeRings() {
 			///////////////////////// Change the big circle ///////////////////////////
 			///////////////////////////////////////////////////////////////////////////
 
-			function rotateTransition(selector, offset, extraOffset) {
+			function rotateTransition(selector, offset, extraOffset, order) {
 				svgBig.selectAll("." + selector)
 					.transition().duration(function(c) { return durationTimes[c.ringID]; })
-					.delay(function(c,i) { return delayTimes[c.ringID]; })
+					.delay(function(c,i) { return order === "out" ? delayTimes[c.ringID] : delayTimesBack[c.ringID]; })
 					.attr("startOffset", function(c) { return (c[offset] + extraOffset) + "%"; });
 			}//function rotateTransition
 
+
+			var durationTimes = [3500, 3250 ,3000, 2750, 2500, 2250, 2000, 1750, 1500, 1250]
+			var delayTimes = [0,500,950,1350,1700,2100,2350,2550,2700,2800,2850];
+			var delayTimesBack = [0,500,950,1350,1700,2100,2350,2600,2800,3000,3200];
+
 			//Rotate the texts out
 			var offset = 35;
-			rotateTransition("circle-front", "startOffsetFront", offset);
-			rotateTransition("circle-middle", "startOffsetMiddle", offset);
-			rotateTransition("circle-end", "startOffsetEnd", offset);
+			rotateTransition("circle-front", "startOffsetFront", offset, "out");
+			rotateTransition("circle-middle", "startOffsetMiddle", offset, "out");
+			rotateTransition("circle-end", "startOffsetEnd", offset, "out");
 
 			//Update the texts along the paths
 			setTimeout(updateText, durationTimes[durationTimes.length - 1] + delayTimes[delayTimes.length - 1]);
@@ -345,9 +349,9 @@ function createTreeRings() {
 				updateTextPaths(0, 1, 0, -offset);
 
 				//Move the paths back in again
-				rotateTransition("circle-front", "startOffsetFront", 0);
-				rotateTransition("circle-middle", "startOffsetMiddle", 0);
-				rotateTransition("circle-end", "startOffsetEnd", 0);	
+				rotateTransition("circle-front", "startOffsetFront", 0, "in");
+				rotateTransition("circle-middle", "startOffsetMiddle", 0, "in");
+				rotateTransition("circle-end", "startOffsetEnd", 0, "in");	
 			}//function updateText
 
 		}//function switchChosenLanguage
@@ -474,6 +478,7 @@ function createTreeRings() {
 		var length = 2*Math.PI*radius * ((360-open)/360);
 
 		var path = "";
+		//This only needs to happen because Safari can't handle startOffset outside of 0 - 100
 		if(d.treeID === 0) path = path + "M" + -(3*radiusBigCircle+2*length) + "," + 0 + "L" + -(3*radiusBigCircle) + "," + 0;
 		path = path + 
 				" M" + round2(radius*Math.cos(open*Math.PI/180 + Math.PI/2)) + "," + round2(radius*Math.sin(open*Math.PI/180 + Math.PI/2)) + 
@@ -491,8 +496,7 @@ function createTreeRings() {
 	function resizeTreeRings() {
 		console.log("resize tree ring");
 
-		var svgBig = d3.select("#tree-ring-svg-big").select(".tree-ring-group");
-		var svgMini = d3.select("#viz-tree-ring-mini").selectAll(".tree-ring-group");
+		// ------------------------ Find the new sizes --------------------------- //
 
 		var divWidth = parseInt(d3.select("#viz-tree-ring").style("width"));
 		var windowHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
@@ -513,14 +517,6 @@ function createTreeRings() {
 		var radiusBigCircle = Math.min(300, widthBig/2);
 		radiusScale.range([radiusBigCircle, radiusBigCircle*0.2]);
 
-		//Adjust SVG container of the big circle
-		d3.select("#tree-ring-svg-big")
-			.attr("width", widthBig + margin.left + margin.right)
-			.attr("height", heightBig + margin.top + margin.bottom);
-		svgBig
-			.attr("transform", "translate(" + (margin.left + widthBig/2) + "," + (margin.top + heightBig/2) + ")")
-			.style("font-size", round2(fontScale(size)) + "px");
-
 		//Adjust sizes of the small circles
 		var radiusSmallCircles = round2(Math.min(50, Math.max(30, divWidth/10)));
 		radiusScaleSmall.range([radiusSmallCircles, radiusSmallCircles * 0.2]);
@@ -534,6 +530,19 @@ function createTreeRings() {
 		};
 		var widthMini = 2*radiusSmallCircles;
 		var heightMini = 2*radiusSmallCircles;
+
+		// ------------------------ Update the SVGs --------------------------- //
+
+		var svgBig = d3.select("#tree-ring-svg-big").select(".tree-ring-group");
+		var svgMini = d3.select("#viz-tree-ring-mini").selectAll(".tree-ring-group");
+
+		//Adjust SVG container of the big circle
+		d3.select("#tree-ring-svg-big")
+			.attr("width", widthBig + margin.left + margin.right)
+			.attr("height", heightBig + margin.top + margin.bottom);
+		svgBig
+			.attr("transform", "translate(" + (margin.left + widthBig/2) + "," + (margin.top + heightBig/2) + ")")
+			.style("font-size", round2(fontScale(size)) + "px");
 
 		d3.selectAll(".tree-ring-mini")
 			.attr("width", widthMini + marginMini.left + marginMini.right)

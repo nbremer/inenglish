@@ -6,7 +6,8 @@
 	  left: 10 
 	};
 	var width = divWidth - margin.left - margin.right;
-	var height = width;
+	var forceLength = 900;
+	var height = divWidth > forceLength ? 300 : Math.sqrt(forceLength*forceLength - width*width);
 
 	//SVG container for the big circle
 	var svg = d3.select("#viz-word-snake").append("svg")
@@ -73,32 +74,16 @@
 			.domain(d3.extent(top1, function(d) { return d.frequency; }))
 			.range([50,70]);
 
+		var widthScale = d3.scaleLinear()
+			.domain([0,9])
+			.range([50,width-50]);
+		var heightScale = d3.scaleLinear()
+			.domain([0,9])
+			.range([50,height-50]);
+
 		///////////////////////////////////////////////////////////////////////////
 		////////////////////////////// Create nodes ///////////////////////////////
 		///////////////////////////////////////////////////////////////////////////
-
-		//How many circles fir in one "row"
-		var angle = 35 * Math.PI/180;
-		var radius = 70;
-		var numCircle = Math.round(width / (2*radius));
-		//If it's not an exact fit, make it so
-		radius = round2( ( width/(numCircle + 0.5) )/2 );
-		//Save the x-locations if each circle
-
-		var xLoc = new Array(numCircle + 2);
-		for(var i = 0; i<=numCircle; i++){
-			xLoc[i] = round2( radius + i * radius); 
-		}//for i
-		
-		var xLoc = new Array(numCircle);
-		for(var i = 0; i<numCircle; i++){
-			xLoc[i] = round2( (1 + 2*i) * radius * Math.cos(angle)); 
-		}//for i
-		var xLocArc = new Array(numCircle+1);
-		for(var i = 0; i<=numCircle; i++){
-			xLocArc[i] = round2(2*i * radius * Math.cos(angle)); 
-		}//for i
-
 
 		var nodes = [];
 
@@ -107,8 +92,7 @@
 			var words = d.original.split(" | ");
 			nodes.push({
 				rank: i,
-				frequency: d.frequency,
-				radius: radius,
+				radius: d.frequency,
 				translation: d.translation,
 				original: d.original,
 				language: languageMap[d.language],
@@ -118,6 +102,8 @@
 			})
 		});
 
+		//console.log(nodes);
+
 		///////////////////////////////////////////////////////////////////////////
 		///////////////////////////// Create the nodes ////////////////////////////
 		///////////////////////////////////////////////////////////////////////////
@@ -125,26 +111,20 @@
 		var nodeWrapper = svg.append("g").attr("class", "node-wrapper");
 
 		//Create a group for each circle
-		var pos = 0, add = 1;
 	  	var node = nodeWrapper.selectAll(".node")
 			.data(nodes)
 	    	.enter().append("g")
 	        .attr("class", "node")
-	        .attr("transform", function(d,i) { 
-	        	//Save the locations
-	        	d.x = xLoc[pos];
-        		d.y = (1 + 2*i) * radius * Math.sin(angle);
-
-        		//Figure out which position of the xLoc to use on the next one
-        		if(pos === numCircle-1) {
-	        		add = -1;
-	        	} else if (pos === 0) {
-	        		add = 1;
-	        	}
-	        	pos = pos + add;
-
+	        .attr("transform", function(d) { 
+		      	d.x = widthScale(d.rank);
+        		d.y = heightScale(d.rank); 
         		return "translate(" + d.x + "," + d.y + ")";
         	});
+
+	    // //Attach a circle to each group
+	    // node.append("circle")
+	    //   	.attr("r", function(d) { return rScale(d.radius); })
+	    //   	.style("fill", "grey");
 
 		///////////////////////////////////////////////////////////////////////////
 		//////////////////////// Create the central words /////////////////////////
@@ -193,79 +173,88 @@
 		////////////////////// Create the outer circular paths ////////////////////
 		///////////////////////////////////////////////////////////////////////////
 
-		var xLocArc = new Array(numCircle+1);
-		for(var i = 0; i<=numCircle; i++){
-			xLocArc[i] = round2(2*i * radius * Math.cos(angle)); 
-		}//for i
-
-	    //Create path
-	    var pos = 0, add = 1, finalY;
-	    svg.append("path")
+	    //Create two paths for the groups - a bottom circle half and top circle half
+	    var counter = 0;
+	    var open = 1 * Math.PI/180;
+	    node.selectAll(".circle-path")
+	    	.filter(function(d) { return this.parentNode.__data__.translation; })
+	    	.data([{pos: 0},{pos: 1}])
+	    	.enter().append("path")
 	    	.attr("class", "circle-path")
-	    	.attr("id", "circle-word-path")
+	    	.attr("id", function(d,i) { return "circle-path-" + counter++; })
 	    	//.style("stroke", "#d2d2d2")
 	    	.style("fill", "none")
-	    	.attr("d", function(d) {
-
-	    		var path = "M" + 0 + ",0 ";
-
-	    		var xOld = 0, 
-	    			yOld = 0,
-	    			sweep = 0,
-	    			largeArc = 0;
-
-	    		for(var i = 1; i <= nodes.length; i++) {
-	    			//Figure out which position of the xLocArc to use on the next one
-	        		if(pos === numCircle) { add = -1; } 
-	        		else if (pos === 0) { add = 1; }
-		        	pos = pos + add;
-		        	x = xLocArc[pos];
-
-		        	y = yOld + round2( 2 * radius * Math.sin(angle) );
-
-	    			path = path + " A" + radius + "," + radius + " 0 0," + sweep + " " + x + "," + y + " ";
-	    			xOld = x;
-	    			yOld = y;
-	    			sweep = sweep ? 0 : 1;
-
-	    			//For when the direction needs to change
-		        	if(i !== 1 && (i-1)%(numCircle-1) === 0) {
-		        		sweep = sweep ? 0 : 1;
-		        		if(numCircle%2 === 1) largeArc = largeArc ? 0 : 1; //3 or 5 circles in a row
-
-		        		//Figure out which position of the xLocArc to use on the next one
-		        		if(pos === numCircle) { add = -1; } 
-		        		else if (pos === 0) { add = 1; }
-			        	pos = pos + add;
-			        	x = xLocArc[pos];
-
-		        		y = yOld;
-			        	path = path + " A" + radius + "," + radius + " 0 " + largeArc + "," + sweep + " " + x + "," + y + " ";
-		    			xOld = x;
-		    			yOld = y;
-		    			sweep = sweep ? 0 : 1;
-		        	}//if
-
-	    		}//for i
-
-	    		finalY = yOld;
-
-	    		return path;
+	    	.attr("d", function(d,i) {
+	    		d.radius = round2(rScale(this.parentNode.__data__.radius));
+	    		var side = d.pos === 0 ? 1 : -1;
+	    		return "M" + -(d.radius * Math.cos(open)) + "," + (side * d.radius * Math.sin(open)) + 
+	    				" A" + d.radius + "," + d.radius + " 0 0, " + d.pos + " " + 
+	    				(d.radius * Math.cos(open)) + "," + (side * d.radius * Math.sin(open));
 	    	});
 
-		//Adjust the height of the SVG
-		height = finalY;
-		d3.select("#viz-word-snake svg").attr("height", height + margin.top + margin.bottom);
-		
 	   	//Create text on path
-	    svg.append("text")
+	    var counter = 0;
+	    var wordCounter = 0;
+	    var textRing = node.selectAll(".circle-path-text")
+	    	.filter(function(d) { return this.parentNode.__data__.translation; })
+	    	.data([{pos: 1},{pos: 0}])
+	    	.enter().append("text")
 			.attr("class", "circle-path-text noselect")
 			.style("fill", "none")
+			.attr("dy", function(d,i) { return (d.pos === 0 ? "0.35em" : "0em"); })
 			.append("textPath")
-			  	.style("text-anchor","start")
+			  	.style("text-anchor","middle")
+			  	.attr("startOffset","50%")
 			  	.style("fill", lightgrey)
-				.attr("xlink:href", "#circle-word-path")
-				.text(top100Overall.map(function(d){ return d.translation; }).join("\u00A0\u00A0"));
+				.attr("xlink:href", function(d,i) { return "#circle-path-" + (2*(this.parentNode.parentNode.__data__.rank) + d.pos); })
+				.text(function(d,i) {
+					var totalLength = 0;
+					var words = "";
+					d.pathLength = round2(document.getElementById("circle-path-" + (2*(this.parentNode.parentNode.__data__.rank) + d.pos)).getTotalLength());
+					while(totalLength < d.pathLength) {
+						totalLength += top100Overall[wordCounter].textLength;
+						if(totalLength < d.pathLength) {
+							words = words + top100Overall[wordCounter].totalWord;
+							wordCounter += 1;
+						} else {
+							break;
+						}//else
+					}//while
+					return words;
+				});
+
+		///////////////////////////////////////////////////////////////////////////
+		//////////////////////////// Create simulation ////////////////////////////
+		///////////////////////////////////////////////////////////////////////////
+
+		var simulation = d3.forceSimulation(nodes)
+			.alphaDecay(0.001)
+			.velocityDecay(0.99)
+		    .force("collide", d3.forceCollide().radius( function(d) { return rScale(d.radius) * 1.3; }).strength(1).iterations(2) )
+		   	//.force("x", d3.forceX(function(d) { return widthScale(d.rank); }).strength(0.9) )
+		    //.force("y", d3.forceY(function(d) { return heightScale(d.rank); }).strength(0.5) )
+		    .stop();
+
+		///////////////////////////////////////////////////////////////////////////
+		/////////////////////////// Run the simulation ////////////////////////////
+		///////////////////////////////////////////////////////////////////////////
+
+		var n = Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay()));
+		for (var i = 0; i < n; ++i) {
+		 	simulation.tick();
+		 	ticked();
+		}//for i
+		//simulation.on("tick", ticked); //for animated movement
+
+		function ticked() {
+		  	node
+		      	.attr("transform", function(d) { 
+		      		d.x = Math.max(rScale(d.radius), Math.min(width - rScale(d.radius), d.x));
+        			d.y = Math.max(rScale(d.radius), Math.min(height - rScale(d.radius), d.y)); 
+        			return "translate(" + d.x + "," + d.y + ")";
+        		});
+
+		}//ticked
 
 	};//function drawWordSnake
 

@@ -67,7 +67,7 @@
 
 		<!-- Google fonts -->
 		<link href="https://fonts.googleapis.com/css?family=Dancing+Script&amp;subset=latin-ext" rel="stylesheet">
-		<link href="https://fonts.googleapis.com/css?family=Lato:300,400,400i,800&amp;subset=latin-ext" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css?family=Lato:300,400,400i,900&amp;subset=latin-ext" rel="stylesheet">
 		<!-- Cyrillic -->
 		<link href="https://fonts.googleapis.com/css?family=Cormorant+Infant&amp;subset=cyrillic" rel="stylesheet">
 
@@ -88,17 +88,17 @@
 	    				<h3 class="subtitle">is the most common word translated to English with Google</h3>
 	    				<h5 class="subtitle-small">when looking only at nouns and their adjectives</h5>
 	    			</div>
-	    			<div class="body-text">
-	    				<p>How much does the translation behavior of a language indicate about its culture? Do German speakers seek the same words translated as the Spanish? To investigate, we've taken all the <span class="bold">single word translations of nouns<sup class="up-note">1</sup> & adjectives<sup class="up-note">2</sup> into English</span>, requested through Google translate, from 10 of the most popular languages found on Google. For example, the most common word translated from Russian into English is <i>mama</i>, while many French speakers want to know the translation of <i>bien</i> into English, meaning <i>good</i>.</p>
+	    			<div class="body-text" style="margin-top: 2em;">
+	    				<p>How much does the translation behavior of a language indicate about its culture? Do German speakers seek the same words translated as the Spanish? To investigate, all the <span class="bold">single word translations of nouns<sup class="up-note">1</sup> & adjectives<sup class="up-note">2</sup> into English</span> requested through Google Translate were analyzed, looking at 10 of the most popular languages found on Google. In this setting, the most common word translated from Russian into English is <i>mama</i>, while many French speakers want to know the translation of <i>bien</i> into English, meaning <i>good</i>.</p>
 
 	    				<p class="footnote">
 	    					<sup class="up-note">1</sup> e.g. <i>house</i>, <i>dog</i>, <i>place</i></br>
 	    					<sup class="up-note">2</sup> e.g. <i>easy</i>, <i>intelligent</i>, <i>adorable</i>; saying something about a noun
 	    				</p>
 	    				
-	    				<p><span class="google">Google Translate</span> is used my millions of people around the World. If we take out all the <i>hello's</i>, <i>thank you's</i>, <i>I, we, she's</i>, <i>no's</i>, <i>but's</i> and similar grammatical types of words we are left with an interesting collection of nouns and their adjectives that people want translated.</p>
+	    				<p>Translations for <i>you</i>, <i>hello</i> and <i>thank you</i> into English are three of the most requested words in any language, which isn't unexpected. By focusing on the nouns & adjectives instead, we can get a glimpse into how different non-native English people use this language in their every day lives.</p>
 
-
+	    				<p>The most translated word<sup style="font-size: 0.6em;">&#8251;</sup> for 10 different languages are displayed below. There are some odd ones in there, such as <i>colleague</i> in Dutch (which even more strangely is almost the same word in Dutch as it is in English). Luckily, the most often translated word across all languages is the wonderful word <i>beautiful</i>, or, as they say in <span id="beautiful-lang" class="beautiful-rotate">German</span>, <span id="beautiful-word" class="beautiful-rotate" style="font-style: italic; white-space: pre;">schon    </span></p>
 	    			</div>
 	    		</div>
     		</div>
@@ -106,6 +106,9 @@
     		<!-- Top word per language, with language string -->
     		<div id="word-snake-section" class="row justify-content-center chart">
     			<div class="col-12 col-lg-8">
+    				<div id="viz-word-snake-title" class="chart-title"> <!-- &#11089; -->
+    					<div class="chart-top-title" style="margin-bottom: 1em;">The most often translated word into English<sup style="font-size: 0.6em;">&#8251;</sup> for each language</div>
+    				</div>
     				<!-- The snake like viz -->
     				<div id="viz-word-snake"></div>
 	    		</div>
@@ -114,7 +117,7 @@
     		<div id="before-tree-ring-text" class="row justify-content-center">
     			<div class="col-12 col-lg-8">
 	    			<div class="body-text">
-	    				<p>Diving even deeper and looking at the top 10 most translated words some interesting differences arise between the chosen languages. The days of the week are quite popular, especially in Spanish & Italian. For the French, <i>monsieur</i> is on 6<sup style="font-size: 0.6em;">th</sup> place, which Google translates to <i>gentleman</i>, seemingly quite fitting for their culture. Luckily, the most often translated word across all languages is the wonderful word <i>beautiful</i>, or, as they say in <span id="beautiful-lang" class="beautiful-rotate">German</span>, <span id="beautiful-word" class="beautiful-rotate" style="font-style: italic; white-space: pre;">schon    </span></p>
+	    				<p>Diving even deeper and looking at the 10 most translated words<sup class="ast">&#8251;</sup> into English, some interesting differences arise between the chosen languages. The days of the week are quite popular, especially in Spanish & Italian. For the French, <i>monsieur</i> is on 6<sup style="font-size: 0.6em;">th</sup> place, which Google translates to <i>gentleman</i>, seemingly quite fitting for their culture.</p>
 	    			</div>
 	    		</div>
     		</div>
@@ -124,7 +127,7 @@
     			<div class="col-12 col-lg-8">
     				<!-- Title above the main circle -->
     				<div id="viz-tree-ring-title" class="chart-title"> <!-- &#11089; -->
-    					<div class="chart-top-title">The top 10 words that are translated from <span id="tree-ring-language-title">all 10 languages combined</span> into English<sup style="font-size: 0.5em;">&#8251;</sup></div>
+    					<div class="chart-top-title">The top 10 words that are translated from <span id="tree-ring-language-title">all 10 languages combined</span> into English<sup style="font-size: 0.6em;">&#8251;</sup></div>
     				</div>
     				<!-- Big chosen language ring -->
     				<div id="viz-tree-ring" class="tree-ring"></div>
@@ -137,11 +140,20 @@
 	    		</div>
     		</div>
 
+    		<!-- Footer -->
+    		<div id="footer" class="row justify-content-center">
+    			<div class="col-12 col-lg-8">
+    				<div id="note" style="font-size: 0.8em; color: #969696;">
+    					<sup style="font-size: 1em; font-weight: 300;">&#8251;</sup> When talking about <i>the most translated words</i> this only includes nouns & adjectives
+    				</div>
+	    		</div>
+    		</div>
+
     	</div>
 
 
 		<script src="js/loopBeautiful.js"></script>
-    	<script src="js/wordsnake.js"></script>
+    	<script src="js/wordsnakeOneString.js"></script>
         <script src="js/treering.js"></script>
 
         <script>

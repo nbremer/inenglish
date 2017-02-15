@@ -38,17 +38,17 @@ h6 {
 }
 
 .body-text {
-	margin-top: 1em;
-	margin-bottom: 1em;
+	margin-top: 3em;
+	margin-bottom: 2em;
 }
 .body-text p {
 	text-align: left;
-	font-size: 16px;
-	line-height: 1.5;
+	font-size: 15px;
+	line-height: 1.6em;
 }
 
 .bold {
-	font-weight: 800;
+	font-weight: 900;
 }
 
 svg {
@@ -93,6 +93,12 @@ svg {
 .up-note {
 	font-size: 0.6em;
 	font-style: italic;
+}
+
+.ast {
+	font-size: 0.6em; 
+	color:#a7a7a7; 
+	font-weight: 300;
 }
 
 .body-text .footnote {
@@ -153,33 +159,75 @@ svg {
 /* ------ Charts in general ------ */
 
 @media screen and (max-width: 320px) {
-  	.chart { font-size: 16px !important; }
+  	.chart { font-size: 18px !important; }
 }
 @media screen and (min-width: 1000px) {
   	.chart { font-size: 22px !important; }
 }
 
 .chart {
-	font-size: calc(16px + (22 - 16) * (100vw - 320px)/(1000 - 320));
+	font-size: calc(18px + (22 - 18) * (100vw - 320px)/(1000 - 320));
 	text-align: center;
 	cursor: default;
-	font-weight: 300;
 	line-height: 1.2em;
+	margin-bottom: 2em;
 }
 
 .chart-top-title {
 	font-family: 'Lato', sans-serif;
 	color: #696969;
+	line-height: 1.3em;
+	font-weight: 300;
 	/*margin-bottom: 1em;*/
 }
 
 .chart-sub-title {
 	font-size: 0.7em;
-	margin-bottom: 0.6em;
-	/*color: #a7a7a7;*/
-	color: #161616;
+    margin-bottom: 0.6em;
+    color: #a7a7a7;
+    /* color: #161616; */
+    font-weight: 400;
+    font-style: italic;
 }
 
+/* ------ Word snake chart ------ */
+
+#viz-word-snake {
+	font-size: 14px;
+	white-space: pre;
+	cursor: default;
+}
+
+.circle-center-translation {
+	font-family: 'Lato', sans-serif;
+	font-size: 0.8em;
+	font-weight: 400;
+	text-anchor: middle;
+}
+
+.circle-center-original {
+	font-family: 'Dancing Script', cursive;
+	font-size: 1.7em;
+	text-anchor: middle;	
+}
+
+.circle-center-language {
+	font-family: 'Lato', sans-serif;
+	font-size: 0.8em;
+	font-weight: 400;
+	font-style: italic;
+	text-anchor: middle;
+}
+
+.circle-path-text {
+	font-family: 'Dancing Script', cursive;
+	font-size: 1.1em;
+}
+
+.circle-path-legend {
+	font-family: 'Lato', sans-serif;
+	font-size: 0.8em;
+}
 
 /* ------ Beautiful loop ------ */
 

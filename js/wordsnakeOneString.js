@@ -2,7 +2,7 @@
 	var margin = {
 	  top: 10,
 	  right: 10,
-	  bottom: 10,
+	  bottom: 30,
 	  left: 10 
 	};
 	var width = divWidth - margin.left - margin.right;
@@ -79,26 +79,35 @@
 
 		//How many circles fir in one "row"
 		var angle = 35 * Math.PI/180;
-		var radius = 70;
-		var numCircle = Math.round(width / (2*radius));
+		var radius = 75;
+		var s = width / Math.cos(angle);
+		var numCircle = Math.floor(s / (2*radius));
+		//I don't want 1 circle
+		if(numCircle === 1) {
+			numCircle = 2;
+			radius = round2((s/numCircle)/2);
+		}
+		//I only want even number of circles
+		if(numCircle%2 === 1) numCircle = numCircle - 1;
 		//If it's not an exact fit, make it so
-		radius = round2( ( width/(numCircle + 0.5) )/2 );
-		//Save the x-locations if each circle
+		//radius = round2((s/numCircle)/2);
 
-		var xLoc = new Array(numCircle + 2);
-		for(var i = 0; i<=numCircle; i++){
-			xLoc[i] = round2( radius + i * radius); 
-		}//for i
-		
+		//Save the x-locations if each circle
 		var xLoc = new Array(numCircle);
 		for(var i = 0; i<numCircle; i++){
 			xLoc[i] = round2( (1 + 2*i) * radius * Math.cos(angle)); 
 		}//for i
+
+		//Locations for the textPath
 		var xLocArc = new Array(numCircle+1);
 		for(var i = 0; i<=numCircle; i++){
 			xLocArc[i] = round2(2*i * radius * Math.cos(angle)); 
 		}//for i
 
+		//New width & divide margins so it will sit in the center
+		width = xLocArc[numCircle];
+		margin.left = margin.right = round2((divWidth - width)/2);
+		svg.attr("transform", "translate(" + (margin.left) + "," + (margin.top) + ")");
 
 		var nodes = [];
 
@@ -193,11 +202,6 @@
 		////////////////////// Create the outer circular paths ////////////////////
 		///////////////////////////////////////////////////////////////////////////
 
-		var xLocArc = new Array(numCircle+1);
-		for(var i = 0; i<=numCircle; i++){
-			xLocArc[i] = round2(2*i * radius * Math.cos(angle)); 
-		}//for i
-
 	    //Create path
 	    var pos = 0, add = 1, finalY;
 	    svg.append("path")
@@ -261,11 +265,38 @@
 	    svg.append("text")
 			.attr("class", "circle-path-text noselect")
 			.style("fill", "none")
+			.attr("dy", "0.15em")
 			.append("textPath")
 			  	.style("text-anchor","start")
 			  	.style("fill", lightgrey)
 				.attr("xlink:href", "#circle-word-path")
 				.text(top100Overall.map(function(d){ return d.translation; }).join("\u00A0\u00A0"));
+
+		var legend = svg.append("g")
+			.attr("transform", "translate(" + xLoc[1] +  "," + (3 * radius * Math.sin(angle)) + ")");
+
+
+		//Create legend
+		legend.append("path")
+	    	.attr("class", "circle-path")
+	    	.attr("id", "circle-legend-path")
+	    	//.style("stroke", "#d2d2d2")
+	    	.style("fill", "none")
+	    	.attr("d", function(d) {
+	    		var r = radius * 1.2;
+	    		return "M" + (-r*Math.cos(angle)) + "," + (-r*Math.sin(angle)) + " A" + r + "," + r + " 0 1,1" + (-r*Math.cos(angle*0.99)) + "," + (-r*Math.sin(angle*0.99)) + " ";
+	    	});
+
+		legend.append("text")
+			.attr("class", "circle-path-legend noselect")
+			.style("fill", "none")
+			.attr("dy", "0.15em")
+			.append("textPath")
+			  	.style("text-anchor","middle")
+			  	.attr("startOffset", "25%")
+			  	.style("fill", darkgrey)
+				.attr("xlink:href", "#circle-legend-path")
+				.text("the most often translated words across all languages");	
 
 	};//function drawWordSnake
 
