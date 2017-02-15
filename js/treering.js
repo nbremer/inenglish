@@ -2,16 +2,9 @@
 //////// Create the visualization with top 10 words per language //////////
 ///////////////////////////////////////////////////////////////////////////
 
-function createTreeRings() {
+var resizeTreeRings;
 
-	d3.select(window).on('resize', function() {
-		//Only resize if the width is changed, not the height
-		//Otherwise you get odd behavior on mobile due to url bar appearing and disappearing
-		if(window.innerWidth !== currentWidth) {
-			currentWidth = window.innerWidth;
-			resizeTreeRings();
-		};
-	});//on resize
+function createTreeRings() {
 
 	///////////////////////////////////////////////////////////////////////////
 	//////////////////////////// Set up the SVG ///////////////////////////////
@@ -25,8 +18,7 @@ function createTreeRings() {
 		.domain([30, 50])
 	    .range([10, 25]);
 
-	var divWidth = parseInt(d3.select("#viz-tree-ring").style("width")),
-		currentWidth = window.innerWidth;
+	var divWidth = parseInt(d3.select("#viz-tree-ring").style("width"));
 	var windowHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
 	var size = Math.min(divWidth, windowHeight * 0.8);
 
@@ -493,8 +485,8 @@ function createTreeRings() {
 	////////////////////////////// Change on resize ///////////////////////////
 	///////////////////////////////////////////////////////////////////////////
 
-	function resizeTreeRings() {
-		console.log("resize tree ring");
+	resizeTreeRings = function() {
+		//console.log("resize tree ring");
 
 		// ------------------------ Find the new sizes --------------------------- //
 

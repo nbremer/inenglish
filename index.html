@@ -93,12 +93,10 @@
 
 	    				<p class="footnote">
 	    					<sup class="up-note">1</sup> e.g. <i>house</i>, <i>dog</i>, <i>place</i></br>
-	    					<sup class="up-note">2</sup> e.g. <i>easy</i>, <i>intelligent</i>, <i>adorable</i>; saying something about a noun
+	    					<sup class="up-note">2</sup> e.g. <i>easy</i>, <i>intelligent</i>, <i>adorable</i>
 	    				</p>
-	    				
-	    				<p>Translations for <i>you</i>, <i>hello</i> and <i>thank you</i> into English are three of the most requested words in any language, which isn't unexpected. By focusing on the nouns & adjectives instead, we can get a glimpse into how different non-native English people use this language in their every day lives.</p>
 
-	    				<p>The most translated word<sup style="font-size: 0.6em;">&#8251;</sup> for 10 different languages are displayed below. There are some odd ones in there, such as <i>colleague</i> in Dutch (which even more strangely is almost the same word in Dutch as it is in English). Luckily, the most often translated word across all languages is the wonderful word <i>beautiful</i>, or, as they say in <span id="beautiful-lang" class="beautiful-rotate">German</span>, <span id="beautiful-word" class="beautiful-rotate" style="font-style: italic; white-space: pre;">schon    </span></p>
+	    				<p>The most translated word<sup style="font-size: 0.6em;">&#8251;</sup> for 10 different languages is displayed below. There are some odd ones in there, such as <i>colleague</i> in Dutch (which even more strangely is almost the same word in Dutch as it is in English). Luckily, the most often translated word across all languages is the wonderful word <i>beautiful</i>, or, as they say in <span id="beautiful-lang" class="beautiful-rotate">German</span>, <span id="beautiful-word" class="beautiful-rotate" style="font-style: italic; white-space: pre;">schon    </span></p>
 	    			</div>
 	    		</div>
     		</div>
@@ -117,7 +115,9 @@
     		<div id="before-tree-ring-text" class="row justify-content-center">
     			<div class="col-12 col-lg-8">
 	    			<div class="body-text">
-	    				<p>Diving even deeper and looking at the 10 most translated words<sup class="ast">&#8251;</sup> into English, some interesting differences arise between the chosen languages. The days of the week are quite popular, especially in Spanish & Italian. For the French, <i>monsieur</i> is on 6<sup style="font-size: 0.6em;">th</sup> place, which Google translates to <i>gentleman</i>, seemingly quite fitting for their culture.</p>
+	    				<p>Translations for <i>you</i>, <i>hello</i> and <i>thank you</i> into English are three of the most requested words in any language, which isn't unexpected. By focusing on the nouns & adjectives instead, we can get a glimpse into how different non-native English speakers use this language in their everyday lives.</p>
+
+	    				<p>Diving even deeper and looking at the 10 most translated words<sup class="ast">&#8251;</sup>, some interesting differences arise between the chosen languages. The days of the week are quite popular, especially in Spanish & Italian. For the French, <i>monsieur</i> is on 6th place, which Google translates to <i>gentleman</i>, seemingly quite fitting for their culture.</p>
 	    			</div>
 	    		</div>
     		</div>
@@ -153,14 +153,26 @@
 
 
 		<script src="js/loopBeautiful.js"></script>
-    	<script src="js/wordsnakeOneString.js"></script>
+    	<script src="js/wordsnake.js"></script>
         <script src="js/treering.js"></script>
 
         <script>
         	window.onload = function() {
+        		createWordSnake();
         		loopBeautiful();
         		createTreeRings();
-        	}
+        	}//on load
+
+        	var currentWidth = window.innerWidth;
+        	d3.select(window).on('resize', function() {
+				//Only resize if the width is changed, not the height
+				//Otherwise you get odd behavior on mobile due to URL bar appearing and disappearing
+				if(window.innerWidth !== currentWidth) {
+					currentWidth = window.innerWidth;
+					resizeWordSnake();
+					resizeTreeRings();
+				};
+			});//on resize
         </script>
     </body>
 </html>
