@@ -109,6 +109,14 @@ svg {
 	margin-bottom: 3em;
 }
 
+.mobile {
+	display: none;
+}
+@media screen and (max-width: 320px) {
+	.mobile { display: inherit; }
+	.desktop { display: none; }
+}
+
 /* ------ title section ------ */
 
 @media screen and (max-width: 320px) {
@@ -303,6 +311,37 @@ svg {
 	fill: none;
 }
 
+/* ------ Similarity network chart ------ */
 
+.node-language-text {
+	font-family: 'Lato', sans-serif;
+	font-size: 1.2em;
+	font-weight: 400;
+	text-anchor: middle;
+	fill: #161616;
+	pointer-events: none;
+}
 
+.link {
+	font-family: 'Dancing Script', cursive;
+	font-weight: 400;
+	fill: #161616;
+	text-align: center;
+	white-space: pre;
+	cursor: default;
+	pointer-events: none;
+}
+
+.link-path {
+	fill: none;
+}
+
+.link-text {
+	font-size: 0.6em;
+}
+
+.link-text-bold {
+	font-size: 1.5em;
+	font-weight: 700;
+}
 

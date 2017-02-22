@@ -140,6 +140,26 @@
 	    		</div>
     		</div>
 
+    		<div id="before-similarity-network-text" class="row justify-content-center">
+    			<div class="col-12 col-lg-8">
+	    			<div class="body-text">
+	    				<p>We've also investigate how similar these top 10's are between any two languages. For example (although perhaps not surprising since the languages are similar), the Spanish top 10 has 4 words in common with both Portuguese and Italian. Russian on the other hand has the highest similarity with Polish. While Japanese is quite dissimilar from all others. No word from the Japanese top 10 is even present in the overall top 10.</p>
+	    				<p>In the network below each word from the top 10 that is similar between two languages is represented by a line/string of words. <span class="bold"><span class="desktop">Click on</span><span class="mobile">Tab</span> a word to move it to the center which reveals all the words that language has in common with all others.</span></p>
+	    			</div>
+	    		</div>
+    		</div>
+
+    		<!-- A network of the similarities between languages -->
+    		<div id="similarity-network-section" class="row justify-content-center chart">
+    			<div class="col-12 col-lg-8">
+    				<div id="viz-similarity-network-title" class="chart-title"> <!-- &#11089; -->
+    					<div class="chart-top-title" style="margin-bottom: 1em;">The similarities between the top 10 words per language</div>
+    				</div>
+    				<!-- The similarity network viz -->
+    				<div id="viz-similarity-network"></div>
+	    		</div>
+    		</div>
+
     		<!-- Footer -->
     		<div id="footer" class="row justify-content-center">
     			<div class="col-12 col-lg-8">
@@ -155,12 +175,35 @@
 		<script src="js/loopBeautiful.js"></script>
     	<script src="js/wordsnake.js"></script>
         <script src="js/treering.js"></script>
+        <script src="js/similarityNetwork.js"></script>
 
         <script>
+    		///////////////////////////////////////////////////////////////////////////
+			/////////////////////////// General variables /////////////////////////////
+			///////////////////////////////////////////////////////////////////////////
+
+			var darkgrey = "#161616",
+				middlegrey = "#a7a7a7",
+				lightgrey = "#afafaf";
+
+			var languageMap = [];
+			languageMap["de"] = "German";
+			languageMap["es"] = "Spanish";
+			languageMap["fr"] = "French";
+			languageMap["it"] = "Italian";
+			languageMap["ja"] = "Japanese";
+			languageMap["nl"] = "Dutch";
+			languageMap["pl"] = "Polish";
+			languageMap["pt"] = "Portuguese";
+			languageMap["ru"] = "Russian";
+			languageMap["tr"] = "Turkish";
+			languageMap["all"] = "All languages";
+	
         	window.onload = function() {
         		createWordSnake();
         		loopBeautiful();
         		createTreeRings();
+        		createSimilarityNetwork();
         	}//on load
 
         	var currentWidth = window.innerWidth;
@@ -171,6 +214,7 @@
 					currentWidth = window.innerWidth;
 					resizeWordSnake();
 					resizeTreeRings();
+					resizeSimilarityNetwork();
 				};
 			});//on resize
         </script>

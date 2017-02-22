@@ -54,26 +54,8 @@ function createTreeRings() {
 	//////////////////////// Create mappings and scales ///////////////////////
 	///////////////////////////////////////////////////////////////////////////
 
-	var languageMap = [];
-	languageMap["de"] = "German";
-	languageMap["es"] = "Spanish";
-	languageMap["fr"] = "French";
-	languageMap["it"] = "Italian";
-	languageMap["ja"] = "Japanese";
-	languageMap["nl"] = "Dutch";
-	languageMap["pl"] = "Polish";
-	languageMap["pt"] = "Portugese";
-	languageMap["ru"] = "Russian";
-	languageMap["tr"] = "Turkish";
-	languageMap["all"] = "All languages";
-
 	var chosenLanguage = "all";
-
 	var spaceWidth;
-
-	var darkgrey = "#161616",
-		middlegrey = "#a7a7a7",
-		lightgrey = "#afafaf";
 
 	var radiusScale = d3.scaleLinear()
 		.domain([1,10])
@@ -220,9 +202,7 @@ function createTreeRings() {
 			.style("fill", "white")
 			.text('\u00A0');
 		spaceWidth = round2(space.node().getComputedTextLength());
-		//space.remove();
 
-		var textWidthBold = new Array(10);
 		//Create a text element for the big bold part of the main ring
 		var textRingMiddle = ring.filter(function(d) { return d.treeID === 0; })
 			.append("text")
@@ -361,7 +341,7 @@ function createTreeRings() {
 		if(doAll) {
 			var svg = d3.selectAll(".tree-ring-group");
 			//Recalculate the width of a space
-			spaceWidth = round2(d3.select("#space-width").node().getComputedTextLength());
+			spaceWidth = round2(svg.select("#space-width").node().getComputedTextLength());
 		} else if (doBig) {
 			var svg = d3.select("#tree-ring-svg-big").select(".tree-ring-group");
 			//Update the hidden text to get the proper text widths

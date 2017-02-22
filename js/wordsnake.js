@@ -6,27 +6,6 @@ var resizeWordSnake;
 function createWordSnake() {
 
 	///////////////////////////////////////////////////////////////////////////
-	/////////////////////////// General variables /////////////////////////////
-	///////////////////////////////////////////////////////////////////////////
-
-	var darkgrey = "#161616",
-		middlegrey = "#a7a7a7",
-		lightgrey = "#afafaf";
-
-	var languageMap = [];
-	languageMap["de"] = "German";
-	languageMap["es"] = "Spanish";
-	languageMap["fr"] = "French";
-	languageMap["it"] = "Italian";
-	languageMap["ja"] = "Japanese";
-	languageMap["nl"] = "Dutch";
-	languageMap["pl"] = "Polish";
-	languageMap["pt"] = "Portugese";
-	languageMap["ru"] = "Russian";
-	languageMap["tr"] = "Turkish";
-	languageMap["all"] = "All languages";
-
-	///////////////////////////////////////////////////////////////////////////
 	////////////////////////////// Set up the SVG /////////////////////////////
 	///////////////////////////////////////////////////////////////////////////
 
@@ -40,7 +19,7 @@ function createWordSnake() {
 	var width = divWidth - margin.left - margin.right;
 	var height = width;
 
-	//SVG container for the big circle
+	//SVG container
 	var svg = d3.select("#viz-word-snake").append("svg")
 		.attr("width", width + margin.left + margin.right)
 		.attr("height", height + margin.top + margin.bottom)
