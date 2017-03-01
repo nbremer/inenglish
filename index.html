@@ -217,6 +217,17 @@
 					resizeSimilarityNetwork();
 				};
 			});//on resize
+
+        	//Endall function for d3v4
+			function endall(transition, callback) { 
+			    if (typeof callback !== "function") throw new Error("Wrong callback in endall");
+			    if (transition.size() === 0) { callback() }
+			    var n = 0; 
+			    transition 
+			        .each(function() { ++n; }) 
+			        .on("end", function() { if (!--n) callback.apply(this, arguments); }); 
+			}//endall 
+			
         </script>
     </body>
 </html>
