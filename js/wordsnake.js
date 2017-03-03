@@ -13,7 +13,7 @@ function createWordSnake() {
 	var margin = {
 	  top: 10,
 	  right: 10,
-	  bottom: 10,
+	  bottom: 40,
 	  left: 10 
 	};
 	var width = divWidth - margin.left - margin.right;

@@ -2,8 +2,6 @@ html {
   	line-height: 1.15;
   	-ms-text-size-adjust: 100%;
   	-webkit-text-size-adjust: 100%;
-	/*font-family: 'Comfortaa', cursive;*/
-	/*font-family: 'Raleway', sans-serif;*/
   	font-family: 'Lato', sans-serif;
 }
 
@@ -13,6 +11,10 @@ body {
 
 section {
   display: block;
+}
+
+svg {
+	overflow: visible;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -45,24 +47,6 @@ h6 {
   font-size: 1rem;
 }
 
-.body-text {
-	margin-top: 0em;
-	margin-bottom: 2em;
-}
-.body-text p {
-	text-align: center;
-	font-size: 15px;
-	line-height: 1.6em;
-}
-
-.bold {
-	font-weight: 900;
-}
-
-svg {
-	overflow: visible;
-}
-
 .noselect {
   -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
@@ -86,14 +70,44 @@ svg {
           	justify-content: center;
 }
 
+.mobile {
+	display: none;
+}
+@media screen and (max-width: 320px) {
+	.mobile { display: inherit; }
+	.desktop { display: none; }
+}
+
+/* ------ body text sections ------ */
+
+.body-text {
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+.body-text.no-margin {
+	margin-top: 0em;
+	margin-bottom: 0em;
+}
+.body-text p {
+	text-align: center;
+	font-size: 16px;
+	line-height: 1.7em;
+}
+.body-text .footnote {
+	font-size: 0.8em; 
+	color: #969696; 
+	line-height: 1.1em; 
+	margin-top: -0.2em;
+	margin-bottom: 0em;
+}
+
+.bold {
+	font-weight: 900;
+}
+
 .cyrillic {
 	font-family: 'Cormorant Infant', serif;
 }
-
-.google {
-
-}
-
 .ds {
 	font-family: 'Dancing Script', cursive;
 }
@@ -102,28 +116,13 @@ svg {
 	font-size: 0.6em;
 	font-style: italic;
 }
-
 .ast {
 	font-size: 0.6em; 
 	color:#a7a7a7; 
 	font-weight: 300;
 }
 
-.body-text .footnote {
-	font-size: 0.8em; 
-	color: #969696; 
-	line-height: 1.1em; 
-	margin-top: -0.9em;
-	margin-bottom: 3em;
-}
-
-.mobile {
-	display: none;
-}
-@media screen and (max-width: 320px) {
-	.mobile { display: inherit; }
-	.desktop { display: none; }
-}
+/* ------ handlettering section ------ */
 
 img {
   border-style: none;
@@ -152,7 +151,14 @@ img {
 .handlettering {
 	text-align: center;
 }
-.handlettering .subtitle-handlettering {
+.handlettering #word-snake-lettering-title {
+	max-width: 450px;
+}
+.handlettering #tree-ring-lettering-title {
+	max-width: 400px;
+	height: 250px;
+}
+.handlettering #network-lettering-title {
 	max-width: 400px;
 }
 
@@ -225,6 +231,14 @@ header {
     /* font-weight: 400; */
     font-style: italic;
     letter-spacing: 0.6px;
+}
+
+/* ------ Beautiful loop ------ */
+
+.beautiful-rotate {
+	/*font-style: italic;*/
+	color: #a7a7a7;
+	/*font-weight: 300;*/
 }
 
 /* ------ Charts in general ------ */
@@ -302,14 +316,6 @@ header {
 .circle-path-legend {
 	font-family: 'Lato', sans-serif;
 	font-size: 0.8em;
-}
-
-/* ------ Beautiful loop ------ */
-
-.beautiful-rotate {
-	/*font-style: italic;*/
-	color: #a7a7a7;
-	/*font-weight: 300;*/
 }
 
 /* ------ Tree ring chart ------ */
