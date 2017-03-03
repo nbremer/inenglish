@@ -20,7 +20,7 @@ function createTreeRings() {
 
 	var divWidth = parseInt(d3.select("#viz-tree-ring").style("width"));
 	var windowHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-	var size = Math.min(divWidth, windowHeight * 0.8);
+	var size = Math.min(divWidth, windowHeight * 0.8, 600);
 
 	//Sizes of the big circle
 	var marginSize = Math.round(marginScale(size));
@@ -37,7 +37,7 @@ function createTreeRings() {
 	var radiusBigCircle = Math.min(300, widthBig/2);
 
 	//Radius of the smaller language circles
-	var radiusSmallCircles = round2(Math.min(45, Math.max(30, divWidth/10)));
+	var radiusSmallCircles = round2(Math.min(40, Math.max(30, divWidth/10)));
 
 	//Sizes of the small language circles
 	var marginSizeMini = Math.round(marginScaleMini(radiusSmallCircles));
@@ -227,6 +227,14 @@ function createTreeRings() {
 
 		function switchChosenLanguage(d) {
 
+			//Move the page to the top of the main circle
+		    $("html, body").animate({
+		        scrollTop: $("#viz-tree-ring-title").offset().top
+		    });
+	        // $('html, body').stop().animate({
+	        //     scrollTop: $("#viz-tree-ring-title").offset().top
+	        // }, 1500, 'easeInOutExpo');
+
 			//Switch the languages
 			var oldLanguage = chosenLanguage;
 			chosenLanguage = d.key;
@@ -235,96 +243,103 @@ function createTreeRings() {
 			var svgBig = d3.select("#tree-ring-svg-big").select(".tree-ring-group");
 			var svgSmall = d3.select(this).select(".tree-ring-group");
 
-			//Change the top title
-			d3.select("#tree-ring-language-title")
-				.transition().duration(1000)
-				.style("color", "white")
-				.on("end", function() {
-					var text = chosenLanguage !== "all" ? languageMap[chosenLanguage] : "all 10 languages combined";
-					var size = chosenLanguage !== "all" ? "1.3em" : "1em";
-					d3.select(this)
-						.style("font-size", size)
-						.text(text)
-						.transition().duration(500)
-						.style("color", darkgrey);
-				});
-
-			///////////////////////////////////////////////////////////////////////////
-			////////////////////// Change the small clicked circle ////////////////////
-			///////////////////////////////////////////////////////////////////////////
-
-			//Rotate the small circle that was clicked
-			svgSmall.selectAll(".ring-path")
-				.transition().transition().duration(4000)
-				.attrTween("transform", function() {
-			      return d3.interpolateString("rotate(0)", "rotate(" + (3*360) + ")");
-			    });
-			//In the meantime update the data in the small circle
-			svgSmall.selectAll(".ring")
-				.each(function(d,i) { 
-					var subsetData = languageData[languageIndex[oldLanguage]].values;
-					d.languageD = subsetData[i].language;
-					d.originalD = subsetData[i].original;
-					d.translationD = subsetData[i].translation;
-				});
-			//Change the top title of the small circle
-			svgSmall.select(".ring-center-text")
-				.transition().duration(2000)
-				.style("fill", "white")
-				.on("end", function() {
-					d3.select(this)
-						.text(languageMap[oldLanguage])
-						.transition().duration(500)
-						.style("fill", darkgrey);
-				});
-			//And then update the text paths of the small circle as well
+			//Wait for the scroll to end before doing the other animations
 			setTimeout(function() {
-				updateTextPaths(0, 0, d.treeID, 0);
-			}, 2000);
 
-			///////////////////////////////////////////////////////////////////////////
-			///////////////////////// Change the big circle ///////////////////////////
-			///////////////////////////////////////////////////////////////////////////
+				//Change the top title
+				d3.select("#tree-ring-language-title")
+					.transition().duration(1000)
+					.style("color", "white")
+					.on("end", function() {
+						var text = chosenLanguage !== "all" ? languageMap[chosenLanguage] : "all 10 languages combined";
+						var size = chosenLanguage !== "all" ? "1.3em" : "1em";
+						d3.select(this)
+							.style("font-size", size)
+							.text(text)
+							.transition().duration(500)
+							.style("color", darkgrey);
+					});
 
-			function rotateTransition(selector, offset, extraOffset, order) {
-				svgBig.selectAll("." + selector)
-					.transition().duration(function(c) { return durationTimes[c.ringID]; })
-					.delay(function(c,i) { return order === "out" ? delayTimes[c.ringID] : delayTimesBack[c.ringID]; })
-					.attr("startOffset", function(c) { return (c[offset] + extraOffset) + "%"; });
-			}//function rotateTransition
+				///////////////////////////////////////////////////////////////////////////
+				////////////////////// Change the small clicked circle ////////////////////
+				///////////////////////////////////////////////////////////////////////////
 
+				//Rotate the small circle that was clicked
+				svgSmall.selectAll(".ring-path")
+					.transition().transition().duration(4000)
+					.attrTween("transform", function() {
+				      return d3.interpolateString("rotate(0)", "rotate(" + (3*360) + ")");
+				    });
 
-			var durationTimes = [3500, 3250 ,3000, 2750, 2500, 2250, 2000, 1750, 1500, 1250]
-			var delayTimes = [0,500,950,1350,1700,2100,2350,2550,2700,2800,2850];
-			var delayTimesBack = [0,500,950,1350,1700,2100,2350,2600,2800,3000,3200];
-
-			//Rotate the texts out
-			var offset = 35;
-			rotateTransition("circle-front", "startOffsetFront", offset, "out");
-			rotateTransition("circle-middle", "startOffsetMiddle", offset, "out");
-			rotateTransition("circle-end", "startOffsetEnd", offset, "out");
-
-			//Update the texts along the paths
-			setTimeout(updateText, durationTimes[durationTimes.length - 1] + delayTimes[delayTimes.length - 1]);
-
-			function updateText() {
-				//Update the data of the big circle
-				svgBig.selectAll(".ring")
-					.each(function(d,i) {
-						var subsetData = languageData[languageIndex[chosenLanguage]].values;
+				//In the meantime update the data in the small circle
+				svgSmall.selectAll(".ring")
+					.each(function(d,i) { 
+						var subsetData = languageData[languageIndex[oldLanguage]].values;
 						d.languageD = subsetData[i].language;
 						d.originalD = subsetData[i].original;
 						d.translationD = subsetData[i].translation;
 					});
 
-				//Update the textPaths
-				updateTextPaths(0, 1, 0, -offset);
+				//Change the top title of the small circle
+				svgSmall.select(".ring-center-text")
+					.transition().duration(2000)
+					.style("fill", "white")
+					//.call(endall, function() { updateTextPaths(0, 0, d.treeID, 0); });
+					.on("end", function() {
+						d3.select(this)
+							.text(languageMap[oldLanguage])
+							.transition().duration(500)
+							.style("fill", darkgrey);
 
-				//Move the paths back in again
-				rotateTransition("circle-front", "startOffsetFront", 0, "in");
-				rotateTransition("circle-middle", "startOffsetMiddle", 0, "in");
-				rotateTransition("circle-end", "startOffsetEnd", 0, "in");	
-			}//function updateText
+						//Update the text paths of the small circle as well
+						updateTextPaths(0, 0, d.treeID, 0); 
+					});
+
+				///////////////////////////////////////////////////////////////////////////
+				///////////////////////// Change the big circle ///////////////////////////
+				///////////////////////////////////////////////////////////////////////////
+
+				var durationTimes = [3500, 3250 ,3000, 2750, 2500, 2250, 2000, 1750, 1500, 1250]
+				var delayTimes = [0,500,950,1350,1700,2100,2350,2550,2700,2800,2850];
+				var delayTimesBack = [0,500,950,1350,1700,2100,2350,2600,2800,3000,3200];
+
+				function rotateTransition(selector, offset, extraOffset, order) {
+					svgBig.selectAll("." + selector)
+						.transition().duration(function(c) { return durationTimes[c.ringID]; })
+						.delay(function(c,i) { return order === "out" ? delayTimes[c.ringID] : delayTimesBack[c.ringID]; })
+						.attr("startOffset", function(c) { return (c[offset] + extraOffset) + "%"; });
+				}//function rotateTransition
+
+				//Rotate the texts out
+				var offset = 35;
+				rotateTransition("circle-front", "startOffsetFront", offset, "out");
+				rotateTransition("circle-middle", "startOffsetMiddle", offset, "out");
+				rotateTransition("circle-end", "startOffsetEnd", offset, "out");
+
+				//Update the texts along the paths
+				setTimeout(updateText, durationTimes[durationTimes.length - 1] + delayTimes[delayTimes.length - 1]);
+
+				function updateText() {
+					//Update the data of the big circle
+					svgBig.selectAll(".ring")
+						.each(function(d,i) {
+							var subsetData = languageData[languageIndex[chosenLanguage]].values;
+							d.languageD = subsetData[i].language;
+							d.originalD = subsetData[i].original;
+							d.translationD = subsetData[i].translation;
+						});
+
+					//Update the textPaths
+					updateTextPaths(0, 1, 0, -offset);
+
+					//Move the paths back in again
+					rotateTransition("circle-front", "startOffsetFront", 0, "in");
+					rotateTransition("circle-middle", "startOffsetMiddle", 0, "in");
+					rotateTransition("circle-end", "startOffsetEnd", 0, "in");	
+				}//function updateText
+
+			}, 1000);
+
 
 		}//function switchChosenLanguage
 
@@ -472,7 +487,7 @@ function createTreeRings() {
 
 		var divWidth = parseInt(d3.select("#viz-tree-ring").style("width"));
 		var windowHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-		var size = Math.min(divWidth, windowHeight * 0.8);
+		var size = Math.min(divWidth, windowHeight * 0.8, 600);
 
 		//Adjust the big circle
 		var marginSize = Math.round(marginScale(size));
@@ -490,7 +505,7 @@ function createTreeRings() {
 		radiusScale.range([radiusBigCircle, radiusBigCircle*0.2]);
 
 		//Adjust sizes of the small circles
-		var radiusSmallCircles = round2(Math.min(50, Math.max(30, divWidth/10)));
+		var radiusSmallCircles = round2(Math.min(40, Math.max(30, divWidth/10)));
 		radiusScaleSmall.range([radiusSmallCircles, radiusSmallCircles * 0.2]);
 
 		var marginSizeMini = Math.round(marginScaleMini(radiusSmallCircles));
@@ -565,14 +580,5 @@ function createTreeRings() {
 function round2(num) {
 	return (Math.round((num + 0.00001) * 100)/100);
 }//round2
-
-//Function to only run once after the last transition ends
-function endall(transition, callback) { 
-	var n = 0; 
-	transition 
-		.each(function() { ++n; }) 
-		.each("end", function() { if (!--n) callback.apply(this, arguments); }); 
-}//endall
-
 
 

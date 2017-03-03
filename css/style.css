@@ -7,6 +7,14 @@ html {
   	font-family: 'Lato', sans-serif;
 }
 
+body {
+  margin: 0;
+}
+
+section {
+  display: block;
+}
+
 h1, h2, h3, h4, h5, h6 {
   	margin-top: 0;
   	margin-bottom: .5rem;
@@ -38,8 +46,8 @@ h6 {
 }
 
 .body-text {
-	margin-top: 4em;
-	margin-bottom: 4em;
+	margin-top: 0em;
+	margin-bottom: 2em;
 }
 .body-text p {
 	text-align: center;
@@ -117,13 +125,55 @@ svg {
 	.desktop { display: none; }
 }
 
+img {
+  border-style: none;
+  page-break-inside: avoid;
+  vertical-align: middle;
+}
+
+.img-fluid {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+}
+
+.black-block {
+	width: 100%;
+    background-color: black; 
+    background-image: url(../img/background_swirl_long.png);
+    /*background-size: cover; */
+    /*background-repeat: no-repeat; */
+    background-size: auto 100%;
+    background-position: center;
+
+	padding: 1.5em 1em;
+	margin-top: 3em;
+}
+.handlettering {
+	text-align: center;
+}
+.handlettering .subtitle-handlettering {
+	max-width: 400px;
+}
+
 /* ------ title section ------ */
+
+header {
+    width: 100%;
+    /* background-color: black; */
+    background-image: url(../img/background_swirl_4.png);
+    /* background-size: cover; */
+    /* background-repeat: no-repeat; */
+    background-size: auto 100%;
+    background-position: center bottom;
+    padding-bottom: 5em;
+}
 
 @media screen and (max-width: 320px) {
 	.quote-lato { display: none; }
   	.title h1 { font-size: 70px !important; }
-  	.title h3 { font-size: 18px !important; }
-  	.title h5 { font-size: 14px !important; }
+  	.title h3 { font-size: 20px !important; }
+  	.title h5 { font-size: 13px !important; }
 }
 @media screen and (min-width: 1200px) {
   	.title h1 { font-size: 130px !important; }
@@ -133,11 +183,9 @@ svg {
 
 .title {
 	text-align: center;
+	margin-top: 2em;
 }
 .title h1 {
-	/*font-family: 'Tangerine', cursive;*/
-	/*font-family: 'Allura', cursive;*/
-	/*font-family: 'Parisienne', cursive;*/
 	font-family: 'Dancing Script', cursive;
 	font-size: calc(60px + (130 - 60) * (100vw - 320px)/(1200 - 320));
 	font-weight: 400;
@@ -151,18 +199,32 @@ svg {
 }
 
 .title h3 {
-	font-size: calc(18px + (22 - 18) * (100vw - 320px)/(1200 - 320));
+	font-size: calc(20px + (22 - 20) * (100vw - 320px)/(1200 - 320));
 }
 .title h5 {
-	font-size: calc(14px + (16 - 14) * (100vw - 320px)/(1200 - 320));
-	margin-top: -0.25em;
+	font-size: calc(13px + (16 - 13) * (100vw - 320px)/(1200 - 320));
 }
 
 .subtitle {
-	color: #696969;
+    color: #d8d8d8;
+    margin-top: 1.5em;
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+    margin-bottom: 0.2em;
+    line-height: 130%;
+    /* font-weight: 400; */
+    letter-spacing: 0.6px;
 }
 .subtitle-small {
-	color: #b5b5b5;
+    color: #828282;
+    margin-top: 0.5em;
+    margin-left: 1em;
+    margin-right: 1em;
+    margin-bottom: 3em;
+    line-height: 130%;
+    /* font-weight: 400; */
+    font-style: italic;
+    letter-spacing: 0.6px;
 }
 
 /* ------ Charts in general ------ */
@@ -253,7 +315,7 @@ svg {
 /* ------ Tree ring chart ------ */
 
 #viz-tree-ring-title {
-	max-width: 600px;
+	max-width: 500px;
 	margin-left: auto;
 	margin-right: auto;
 }
@@ -348,4 +410,16 @@ svg {
 	font-size: 1.5em;
 	font-weight: 700;
 }
+
+/* ------ footer ------ */
+
+footer {
+  	width: 100%;
+	background-image: url(../img/background_swirl_4_rev.png);
+	background-size: auto 100%;
+	background-position: center top;
+	padding-top: 5em;
+	padding-bottom: 10em;
+}
+
 

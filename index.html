@@ -67,28 +67,40 @@
 
 		<!-- Google fonts -->
 		<link href="https://fonts.googleapis.com/css?family=Dancing+Script&amp;subset=latin-ext" rel="stylesheet">
-		<link href="https://fonts.googleapis.com/css?family=Lato:300,400,400i,900&amp;subset=latin-ext" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css?family=Lato:300,300i,400,400i,900&amp;subset=latin-ext" rel="stylesheet">
 		<!-- Cyrillic -->
 		<link href="https://fonts.googleapis.com/css?family=Cormorant+Infant&amp;subset=cyrillic" rel="stylesheet">
 
 		<!-- JS -->
 		<script src="js/d3.v4.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 
 	</head>
 
     <body>
 
+    	
+    <!-- Introduction with the most common translated word -->
+    <header>
     	<div class="container">
-
-    		<!-- Introduction with the most common translated word -->
     		<div id="title-section" class="row justify-content-center">
     			<div class="col-12 col-lg-8">
     				<div class="title">
-	    				<h1><span class="quote-lato"> “</span>Beautiful<span class="quote-lato"> ”</span></h1>
+	    				<!-- <h1><span class="quote-lato"> “</span>Beautiful<span class="quote-lato"> ”</span></h1> -->
+	    				<img class="img-fluid" src="img/script_beautiful_4.png" alt="Beautiful">
 	    				<h3 class="subtitle">is the most common word translated to English with Google</h3>
 	    				<h5 class="subtitle-small">when looking only at nouns and their adjectives</h5>
 	    			</div>
-	    			<div class="body-text" style="margin-top: 2em;">
+	    		</div>
+	    	</div>
+	    </div>
+	</header>
+
+	<section>
+		<div class="container">
+    		<div id="title-section" class="row justify-content-center">
+    			<div class="col-12 col-lg-8">	
+	    			<div class="body-text" style="margin-top: 0em">
 	    				<p>How much does the translation behavior of a language indicate about its culture? Do German speakers seek the same words translated as the Spanish? To investigate, all the <span class="bold">single word translations of nouns<sup class="up-note">1</sup> & adjectives<sup class="up-note">2</sup> into English</span> requested through Google Translate were analyzed, looking at 10 of the most popular languages found on Google. In this setting, the most common word translated from Russian into English is <i>mama</i>, while many French speakers want to know the translation of <i>bien</i> into English, meaning <i>good</i>.</p>
 
 	    				<p class="footnote">
@@ -139,10 +151,22 @@
     				<div id="viz-tree-ring-mini" class="tree-ring flex-wrap-center" style="margin-top: 10px;"></div>
 	    		</div>
     		</div>
+    	</div>
+    </section>
 
+    <!-- Similarity network title image -->
+	<section class="black-block">
+		<div class="handlettering">
+			<img class="img-fluid subtitle-handlettering" src="img/title_similarity_network.png" alt="Similarity between Languages">
+		</div>
+   	</section>
+
+   	<!-- Similarity network -->
+    <section>
+		<div class="container">
     		<div id="before-similarity-network-text" class="row justify-content-center">
-    			<div class="col-12 col-lg-8">
-	    			<div class="body-text">
+    			<div class="col-12 col-lg-8 body-text">
+	    			<div>
 	    				<p>We've also investigate how similar these top 10's are between any two languages. For example (although perhaps not surprising since the languages are similar), the Spanish top 10 has 4 words in common with both Portuguese and Italian. Russian on the other hand has the highest similarity with Polish. While Japanese is quite dissimilar from all others. No word from the Japanese top 10 is even present in the overall top 10.</p>
 	    				<p>In the network below each word from the top 10 that is similar between two languages is represented by a line/string of words. <span class="bold"><span class="desktop">Click on</span><span class="mobile">Tab</span> a word to move it to the center which reveals all the words that language has in common with all others.</span></p>
 	    			</div>
@@ -159,17 +183,21 @@
     				<div id="viz-similarity-network"></div>
 	    		</div>
     		</div>
+    	</div>
+    </section>
 
-    		<!-- Footer -->
-    		<div id="footer" class="row justify-content-center">
+
+	<footer>
+		<div class="container">
+    		<div class="row justify-content-center">
     			<div class="col-12 col-lg-8">
-    				<div id="note" style="font-size: 0.8em; color: #969696;">
+    				<div id="note" style="font-size: 0.8em; color: #969696; padding-bottom: 10em;">
     					<sup style="font-size: 1em; font-weight: 300;">&#8251;</sup> When talking about <i>the most translated words</i> this only includes nouns & adjectives
     				</div>
 	    		</div>
     		</div>
-
     	</div>
+    </footer>
 
 
 		<script src="js/loopBeautiful.js"></script>
@@ -227,7 +255,7 @@
 			        .each(function() { ++n; }) 
 			        .on("end", function() { if (!--n) callback.apply(this, arguments); }); 
 			}//endall 
-			
+
         </script>
     </body>
 </html>

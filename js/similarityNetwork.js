@@ -14,7 +14,7 @@ function createSimilarityNetwork() {
 	//The margin is scaled with the circle radius
 	var marginScale = d3.scaleLinear()
 		.domain([150, 300])
-	    .range([20, 60]);
+	    .range([30, 60]);
 
 	///////////////////////////////////////////////////////////////////////////
 	////////////////////////////// Set up the SVG /////////////////////////////
@@ -24,7 +24,7 @@ function createSimilarityNetwork() {
 	var windowHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
 
 	//The radius of the network in circular shape
-	var radius = Math.min(divWidth/2 * 0.9, windowHeight/2 * 0.7);
+	var radius = Math.min(divWidth/2 * 0.9, windowHeight/2 * 0.7, 250);
 
 	var marginSize = Math.round(marginScale(radius));
 	var margin = {
@@ -53,6 +53,7 @@ function createSimilarityNetwork() {
 	///////////////////////////////////////////////////////////////////////////
 
 	var middleLang = "all"; //starting language in the middle
+	var middleLangOld = "all";
 	//The fraction of the radius the links should expand outward
 	var radiusNumOdd = [-0.3, 0.3, 0.5];	
 	var radiusNumEven = [-0.9, 0.2, 0.5];
@@ -62,7 +63,7 @@ function createSimilarityNetwork() {
 	//Scale for the white circles, one for each language
 	var circleScale = d3.scaleLinear()
 		.domain([50, 300])
-		.range([10, 52]);
+		.range([10, 45]);
 
 	//Opacities for the links (without words)
 	var linkOpacity = 0.2,
@@ -229,7 +230,7 @@ function createSimilarityNetwork() {
 				angle = d.angle;
 
 			//Remeber the before middle node's language
-			var middleLangOld = middleLang;
+			middleLangOld = middleLang;
 			//Change id for middle language
 			middleLang = d.name;
 
@@ -280,6 +281,10 @@ function createSimilarityNetwork() {
 				//Update the paths
 				svg.selectAll(".link-path")
 					//Update the hidden paths - before the move - so the transition will look smooth
+					.filter(function(d) {
+						//Only change the paths that move
+						return middle(d) || middleOld(d);
+					})
 					.attr("d", function(d) { return linkPathCalculationSwitch(d); })
 					.transition("reform").duration(1000)
 					.attrTween("d", function(n) {
@@ -307,7 +312,12 @@ function createSimilarityNetwork() {
 					    return function(t) {
 					    	return t < 1 ? "M" + points.map(function(p) { return p(t); }).join("L") : d1;
 					    };
-				    })
+				    });
+
+				svg.selectAll(".link-path")
+					.filter(function(d) { return middle(d) || middleOld(d); })
+					.transition("changeColor").duration(1000)
+				    .style("opacity", function(d) { return middle(d) ? middleLinkOpacity : linkOpacity; })
 					.call(endall, updateLinkTextPaths) //Adjust the text paths
 
 			}//function intermediateSwitch
@@ -320,7 +330,7 @@ function createSimilarityNetwork() {
 					.style("opacity", 1);
 				svg.selectAll(".link-path")
 					//.transition("fadeIn").duration(500)
-					.style("opacity", function(d) { return middle(d) ? middleLinkOpacity : linkOpacity; })
+					//.style("opacity", function(d) { return middle(d) ? middleLinkOpacity : linkOpacity; })
 					.style("stroke-width", function(d) {
 						return (middle(d) ? +round2(strokeScale(radius)) : (+round2(strokeScale(radius))*0.75));
 					})
@@ -343,10 +353,10 @@ function createSimilarityNetwork() {
 		var svg = d3.selectAll("#viz-similarity-network svg g");
 
 		//Remove all the text paths, because we need to recalculate the text lengths
-		svg.selectAll(".link").selectAll("textPath").remove();
+		svg.selectAll("textPath").remove();
 
 		//Add the bold middle translation back in
-		svg.selectAll(".link").select(".link-text-bold")
+		svg.select(".link-text-bold")
 			.filter(function(d) { return middle(d); })
 			.each(function(d) {
 		    	var el = d3.select(this);
@@ -371,7 +381,7 @@ function createSimilarityNetwork() {
 			});
 
 		//Now show them
-		svg.selectAll(".link").selectAll("textPath")
+		svg.selectAll("textPath")
 			.transition("fade").duration(500)
 			.style("opacity", 1);
 	}//function updateLinkTextPaths
@@ -508,7 +518,8 @@ function createSimilarityNetwork() {
 		divWidth = parseInt(d3.select("#viz-similarity-network").style("width"));
 		windowHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
 
-		radius = Math.min(divWidth/2 * 0.9, windowHeight/2 * 0.7);
+		radius = Math.min(divWidth/2 * 0.9, windowHeight/2 * 0.7, 250);
+		console.log(Math.round(radius));
 
 		marginSize = Math.round(marginScale(radius));
 		margin = {
@@ -641,6 +652,9 @@ function createSimilarityNetwork() {
 	function middle(d) {
 		return d.source.name === middleLang || d.target.name === middleLang;
 	}//function middle
+	function middleOld(d) {
+		return d.source.name === middleLangOld || d.target.name === middleLangOld;
+	}//function middleOld
 
 }//function createSimilarityNetwork
 
