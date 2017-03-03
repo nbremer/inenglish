@@ -161,7 +161,7 @@ img {
 header {
     width: 100%;
     /* background-color: black; */
-    background-image: url(../img/background_swirl_4.png);
+    background-image: url(../img/background_swirl.png);
     /* background-size: cover; */
     /* background-repeat: no-repeat; */
     background-size: auto 100%;
@@ -415,7 +415,7 @@ header {
 
 footer {
   	width: 100%;
-	background-image: url(../img/background_swirl_4_rev.png);
+	background-image: url(../img/background_swirl_rev.png);
 	background-size: auto 100%;
 	background-position: center top;
 	padding-top: 5em;
