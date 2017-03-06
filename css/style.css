@@ -155,8 +155,7 @@ img {
 	max-width: 450px;
 }
 .handlettering #tree-ring-lettering-title {
-	max-width: 400px;
-	height: 250px;
+	max-width: 350px;
 }
 .handlettering #network-lettering-title {
 	max-width: 400px;
@@ -222,7 +221,7 @@ header {
     letter-spacing: 0.6px;
 }
 .subtitle-small {
-    color: #828282;
+    color: #989898;
     margin-top: 0.5em;
     margin-left: 1em;
     margin-right: 1em;
@@ -231,6 +230,30 @@ header {
     /* font-weight: 400; */
     font-style: italic;
     letter-spacing: 0.6px;
+}
+
+.collab {
+    font-weight: 300;
+    color: #d8d8d8;
+    margin-bottom: 1em;
+}
+.collab div {
+	height: 24px;
+    font-size: 14px;
+    padding: 2.5px 5px 0 5px;
+}
+.logo-google {
+	width: 150px;
+    background: url(../img/logo_google_news_lab.svg) no-repeat 0 0;
+    background-size: contain;
+}
+.logo-google span, .logo-vc span {
+	visibility: hidden;
+}
+.logo-vc {
+	width: 150px;
+    background: url(../img/logo_visual_cinnamon.svg) no-repeat 0 0;
+    background-size: contain;
 }
 
 /* ------ Beautiful loop ------ */
@@ -361,8 +384,8 @@ header {
 
 .ring-rank {
 	font-family: 'Lato', sans-serif;
-	font-size: 0.7em;
-	font-weight: 300;
+	font-size: 0.75em;
+	font-weight: 400;
 	text-anchor: middle;
 }
 

@@ -28,7 +28,7 @@ function loopBeautiful() {
 	//var t1 = d3.transition().duration(2000);
 	//var t2 = d3.transition().duration(1000);
 
-	var t = d3.interval(loopBeauty, 5000);
+	var t = d3.interval(loopBeauty, 4000);
 
 	var chosen = 0,
 		chosenOld = 0;
@@ -42,22 +42,22 @@ function loopBeautiful() {
 
 		//Change the beautiful word and language
 		d3.select("#beautiful-word")
-			.transition().duration(1000)
+			.transition().duration(500)
 			.style("color", "white")
 			.on("end", function() {
 				d3.select(this)
 					.html(beauty[chosen].word)
-					.transition().duration(750)
+					.transition().duration(400)
 					.style("color", middlegrey);
 			});
 
 		d3.select("#beautiful-lang")
-			.transition().duration(1000)
+			.transition().duration(500)
 			.style("color", "white")
 			.on("end", function() {
 				d3.select(this)
 					.text(beauty[chosen].language)
-					.transition().duration(750)
+					.transition().duration(400)
 					.style("color", middlegrey);
 			});
 
