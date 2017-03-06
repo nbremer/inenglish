@@ -447,8 +447,33 @@ footer {
 	background-image: url(../img/background_swirl_rev.png);
 	background-size: auto 100%;
 	background-position: center top;
-	padding-top: 5em;
-	padding-bottom: 10em;
+	padding-top: 4em;
+	padding-bottom: 2em;
+	color: white; 
+	text-align: left;
 }
 
+footer a, footer a:link, footer a:visited, footer a:active {
+  color: white;
+  border-bottom: 1px dotted white;
+  text-decoration: none;
+}
+footer a:hover {
+  text-decoration: none;
+  border-bottom: 1px solid white;
+}
 
+footer #note {
+	font-weight: 300;
+	font-size: 0.9em; 
+	padding-bottom: 2em;
+	padding-top: 1em;
+	text-align: center;
+}
+
+footer p {
+	font-size: 14px;
+	line-height: 1.7em;
+	font-weight: 300;
+	margin-top: 0.5em;
+}
