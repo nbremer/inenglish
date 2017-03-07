@@ -20,7 +20,7 @@ function createTreeRings() {
 
 	var divWidth = parseInt(d3.select("#viz-tree-ring").style("width"));
 	var windowHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-	var size = Math.min(divWidth, windowHeight * 0.8, 600);
+	var size = Math.min(divWidth, windowHeight * 0.7, 600);
 
 	//Sizes of the big circle
 	var marginSize = Math.round(marginScale(size));
@@ -228,12 +228,23 @@ function createTreeRings() {
 		function switchChosenLanguage(d) {
 
 			//Move the page to the top of the main circle
-		    $("html, body").animate({
-		        scrollTop: $("#viz-tree-ring-title").offset().top
-		    });
-	        // $('html, body').stop().animate({
-	        //     scrollTop: $("#viz-tree-ring-title").offset().top
-	        // }, 1500, 'easeInOutExpo');
+			var offsetTop = document.getElementById('viz-tree-ring-title').getBoundingClientRect().top + document.body.scrollTop;
+			//https://bl.ocks.org/mbostock/1649463
+			d3.transition()
+			    .duration(1000)
+			    .tween("scroll", scrollTween(offsetTop));
+
+			function scrollTween(offset) {
+			  return function() {
+			    var i = d3.interpolateNumber(document.body.scrollTop, offset);
+			    return function(t) { scrollTo(0, i(t)); };
+			  };
+			}//function scrollTween
+
+			//Move the page to the top of the main circle - needs jQuery
+		    // $("html, body").animate({
+		    //     scrollTop: $("#viz-tree-ring-title").offset().top
+		    // });
 
 			//Switch the languages
 			var oldLanguage = chosenLanguage;
@@ -339,7 +350,6 @@ function createTreeRings() {
 				}//function updateText
 
 			}, 1000);
-
 
 		}//function switchChosenLanguage
 
@@ -487,7 +497,7 @@ function createTreeRings() {
 
 		var divWidth = parseInt(d3.select("#viz-tree-ring").style("width"));
 		var windowHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-		var size = Math.min(divWidth, windowHeight * 0.8, 600);
+		var size = Math.min(divWidth, windowHeight * 0.7, 600);
 
 		//Adjust the big circle
 		var marginSize = Math.round(marginScale(size));

@@ -181,7 +181,6 @@ function createWordSnake() {
 		   			.transition().duration(1500 + Math.random()*500).delay(function(d) { return Math.random() * 1500; })
 	   				.style("opacity", 1);
 	   			});
-
 		}//loopWords
 
 		///////////////////////////////////////////////////////////////////////////
@@ -195,8 +194,16 @@ function createWordSnake() {
 	    	//.style("stroke", "#d2d2d2")
 	    	.attr("d", calculateSnakePath(grid, n));
 		
+		//Create the text itself
+		var wordString = "1 ";
+		top100Overall.forEach(function(d,i) {
+			var rank = "";
+			if((i+1) % 10 === 0) rank = (i+1) + " ";
+			wordString = wordString + rank + d.translation + "\u00A0\u00A0" ;
+		});
+
 	   	//Create text on path
-	    svg.append("text")
+	    var wordSnake = svg.append("text")
 			.attr("class", "circle-path-text noselect")
 			.style("fill", "none")
 			.attr("dy", "0.15em")
@@ -204,7 +211,18 @@ function createWordSnake() {
 			  	.style("text-anchor","start")
 			  	.style("fill", lightgrey)
 				.attr("xlink:href", "#circle-word-path")
-				.text(top100Overall.map(function(d){ return d.translation; }).join("\u00A0\u00A0"));
+				.attr("startOffset", "0%")
+				.text(wordString);
+				//.text(top100Overall.map(function(d){ return d.translation; }).join("\u00A0\u00A0"));
+
+		//var tSnake = d3.timer(animateWords);
+		function animateWords() {
+			elapsed
+			//For the languages that have multiple variants in the original, loop through the words
+	   		wordSnake.select("textPath")
+	   			.attr("startOffset",  elapsed%100 + "%")
+
+		}//loopWords
 
 		///////////////////////////////////////////////////////////////////////////
 		/////////////////////// Create the word string legend /////////////////////

@@ -287,6 +287,7 @@ function createSimilarityNetwork() {
 					})
 					.attr("d", function(d) { return linkPathCalculationSwitch(d); })
 					.transition("reform").duration(1000)
+					//.attr("d", linkPathCalculation)
 					.attrTween("d", function(n) {
 			      		//https://bl.ocks.org/mbostock/3916621
 			      		var d1 = linkPathCalculation(n), 
@@ -519,7 +520,6 @@ function createSimilarityNetwork() {
 		windowHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
 
 		radius = Math.min(divWidth/2 * 0.9, windowHeight/2 * 0.7, 250);
-		console.log(Math.round(radius));
 
 		marginSize = Math.round(marginScale(radius));
 		margin = {
