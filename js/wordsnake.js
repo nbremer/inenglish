@@ -156,6 +156,8 @@ function createWordSnake() {
 		.range(["#afafaf","#161616"]);
 
 	//Initiate the word cloud layout
+	//https://github.com/jasondavies/d3-cloud
+	//http://blockbuilder.org/bricedev/8b2da06ddef27d94cde9
 	var wordcloudLayout = d3.layout.cloud()
 	    .size([wwidth, wheight])
 	    .rotate(0)
