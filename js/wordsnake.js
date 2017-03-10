@@ -26,6 +26,161 @@ function createWordSnake() {
 		.append("g")
 		.attr("transform", "translate(" + (margin.left) + "," + (margin.top) + ")");
 
+	var parseTime = d3.timeParse("%Y-%m-%d");
+
+	///////////////////////////////////////////////////////////////////////////
+	/////////////////////// Create the tooltip line chart /////////////////////
+	///////////////////////////////////////////////////////////////////////////
+
+	var tooltipPadding = 40;
+	var tooltipMaxSize = 1;
+	var tooltipAvailWidth = divWidth*tooltipMaxSize - tooltipPadding;
+	var tooltipMaxWidth = 450;
+	var ttMiddle = tooltipAvailWidth < tooltipMaxWidth;
+	//The size of the annotation dotted circle
+	var annotationCircleRadius = ttMiddle ? 10 : 15;
+
+	var tmargin = {
+	  top: 20,
+	  right: 10,
+	  bottom: 20,
+	  left: 60 
+	};
+	if(ttMiddle) tmargin.left = 30;
+
+	var twidth = Math.min(tooltipAvailWidth, tooltipMaxWidth) - tmargin.left - tmargin.right;
+	var theight = Math.max(twidth*1/4, 80);
+
+	var tooltip = d3.select("#tooltip-chart").append("svg")
+		.attr("width", twidth + tmargin.left + tmargin.right)
+		.attr("height", theight + tmargin.top + tmargin.bottom)
+		.append("g")
+		.attr("transform", "translate(" + tmargin.left + "," + tmargin.top + ")");
+
+	var tooltipOffset = -15;
+	if(window.innerWidth > 690) tooltipOffset = 0;
+
+	//line function
+	var line = d3.line()
+		.curve(d3.curveCatmullRomOpen)
+      	.x(function(d) { return xScale(d.date); })
+      	.y(function(d) { return yScale(d.hits); });
+
+	//Create the scales and axes
+	var xScale = d3.scaleTime()
+		.range([0, twidth]);
+	var yScale = d3.scaleLinear()
+		.domain([0,100])
+		.range([theight, 0]);
+
+	//Create the x-axis
+ 	var xAxis = tooltip.append("g")
+	    .attr("class", "axis axis-x")
+	    .attr("transform", "translate(" + 0 + "," + theight + ")");
+
+ 	var yAxis = tooltip.append("g")
+	    .attr("class", "axis axis-y")
+	    .attr("transform", "translate(" + (twidth) + "," + 0 + ")")
+	    .call(d3.axisLeft(yScale).tickSize(twidth + tmargin.left).tickValues([25,50,75,100]));
+	//Move the y axis textual values
+	var newWords = ["","half as popular","","max search popularity"];
+	if(ttMiddle) newWords = ["","50%","","max popularity"];
+	tooltip.selectAll(".axis-y text")
+		.attr("transform", "translate(2,-7)")
+		.text(function(d,i) { return newWords[i]; });
+	//Adjust the axes line length a bit
+	tooltip.selectAll(".axis-y line")
+		.attr("x2", function(d,i) { 
+			if(i%2 === 0) return -twidth;
+			else return -(twidth + tmargin.left); 
+		});
+
+	// //Create the y-axis title
+	// tooltip.append("text")
+	// 	.attr("class", "axis-y-title")
+	// 	.attr("transform", "rotate(-90)translate(" + (-theight/2) + "," + (-tmargin.left/2) + ")")
+	// 	.text("popularity \u25B8");
+
+	//Set-up the line
+	var tooltipLine = tooltip.append("path")
+      	.attr("class", "tooltip-line")
+      	.style("stroke", darkgrey);
+
+    //Set-up the annotation
+	var annotationGroup = tooltip
+	  	.append("g")
+	  	.attr("class", "annotation-group");
+	//Set up the extra circles on the annotation
+	var annotationCircleGroup = tooltip
+	  	.append("g")
+	  	.attr("class", "annotation-circle");
+
+	 //Set-up the tooltip function
+	var makeAnnotations = d3.annotation()
+	  	.accessors({
+	    	x: d => xScale(parseTime(d.date)),
+	    	y: d => yScale(d.hits)
+	  	});
+
+	///////////////////////////////////////////////////////////////////////////
+	////////////////// Create the tooltip related words chart /////////////////
+	///////////////////////////////////////////////////////////////////////////
+
+	var wmargin = {
+	  top: 10,
+	  right: 0,
+	  bottom: 0,
+	  left: 0 
+	};
+
+	var wwidth = Math.min(tooltipAvailWidth, tooltipMaxWidth) - wmargin.left - wmargin.right;
+	var wheight = Math.max(wwidth*1/4, 80);
+	if(ttMiddle) wheight = 120;
+
+	//Create the wordcloud svg
+	var tooltipWordcloud = d3.select("#tooltip-word-chart").append("svg")
+		.attr("width", wwidth + wmargin.left + wmargin.right)
+		.attr("height", wheight + wmargin.top + wmargin.bottom)
+		.append("g")
+		.attr("transform", "translate(" + (wmargin.left+wwidth/2) + "," + (wmargin.top+wheight/2) + ")");
+
+	//Create the scales
+	var wordCloudScale = d3.scalePow()
+		.exponent(4)
+		.domain([0,100])
+		.range([9,(ttMiddle ? 14 : 18)])
+		.clamp(true);
+
+	var colorScale = d3.scaleLinear()
+		.domain([0, 100])
+		.range(["#afafaf","#161616"]);
+
+	//Initiate the word cloud layout
+	var wordcloudLayout = d3.layout.cloud()
+	    .size([wwidth, wheight])
+	    .rotate(0)
+	    .padding(function(l) { return wordCloudScale(l.score)/4; })
+	    .font(function(l) { return l.score > 50 ? "'Dancing Script', cursive" : "'Lato', sans-serif"; })
+	    .fontSize(function(l,i) { return (l.score > 50 ? 2 : 1) * wordCloudScale(l.score); })
+	    .text(function(l) { return l.related; })
+	    .spiral("archimedean")
+	    .on("end", drawWordCloud);
+
+	//Place the wordcloud texts
+  	function drawWordCloud(words) {
+  		tooltipWordcloud.selectAll(".word-cloud")
+  			.remove();
+		tooltipWordcloud.selectAll(".word-cloud")
+	        .data(words)
+	    	.enter().append("text")
+	        .attr("class","word-cloud")
+	        .style("font-size", function(d) { return d.size + "px"; })
+	        .style("font-family", function(d) { return d.font; })
+	        .style("fill", function(d) { return colorScale(d.score); })
+	        .attr("transform", function(d) { return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")"; })
+	        .text(function(d) { return d.text; });
+  	}//function drawWordCloud
+
 	///////////////////////////////////////////////////////////////////////////
 	///////////////////// Figure out variables for layout /////////////////////
 	///////////////////////////////////////////////////////////////////////////
@@ -72,9 +227,11 @@ function createWordSnake() {
 	d3.queue() 
 	  .defer(d3.csv, "data/top1_per_language_English_combined.csv")
 	  .defer(d3.csv, "data/top100_overall.csv")
+	  .defer(d3.csv, "data/google_trends_data_top_1_words.csv")
+	  .defer(d3.csv, "data/relatedCombined.csv")
 	  .await(drawWordSnake);
 
-	function drawWordSnake(error, top1, top100Overall) {
+	function drawWordSnake(error, top1, top100Overall, trends, related) {
 
 		///////////////////////////////////////////////////////////////////////////
 		///////////////////////////// Final data prep /////////////////////////////
@@ -90,6 +247,18 @@ function createWordSnake() {
 
 		top1.forEach(function(d) {
 			d.frequency = +d.frequency;
+		});
+
+		trends.forEach(function(d) {
+			d.hits = +d.hits;
+			d.date = parseTime(d.week);
+		});
+		// Scale the range of the trend data
+   	 	xScale.domain(d3.extent(trends, function(d) { return d.date; }));
+   	 	xAxis.call(d3.axisBottom(xScale));
+
+		related.forEach(function(d) {
+			d.score = +d.score;
 		});
 
 		///////////////////////////////////////////////////////////////////////////
@@ -139,11 +308,23 @@ function createWordSnake() {
 	        	pos = pos + add;
 
         		return "translate(" + d.x + "," + d.y + ")";
-        	});
+        	})
+        	.on("mouseover", mouseoverNode)
+        	.on("mouseout", hideTooltip)
+        	.on("click", clickOnNode);
+
+        //Hide tooltip again on body click
+        d3.select("body").on("click", hideTooltip);
+        d3.select("#tooltip-close").on("click", hideTooltip);
 
 		///////////////////////////////////////////////////////////////////////////
 		//////////////////////// Create the central words /////////////////////////
 		///////////////////////////////////////////////////////////////////////////
+
+		//Create background circle for the hover & click
+		node.append("circle")
+			.attr("class", "circle-background")
+			.attr("r", radius);
 
 	    //Attach center words to each group
 		var originalText = node.append("text")
@@ -208,21 +389,13 @@ function createWordSnake() {
 			.style("fill", "none")
 			.attr("dy", "0.15em")
 			.append("textPath")
-			  	.style("text-anchor","start")
+				.attr("id", "top-word-string")
+			  	.style("text-anchor","middle")
 			  	.style("fill", lightgrey)
 				.attr("xlink:href", "#circle-word-path")
 				.attr("startOffset", "0%")
-				.text(wordString);
+				.text(wordString + "\u00A0\u00A0\u00A0" + wordString);
 				//.text(top100Overall.map(function(d){ return d.translation; }).join("\u00A0\u00A0"));
-
-		//var tSnake = d3.timer(animateWords);
-		function animateWords() {
-			elapsed
-			//For the languages that have multiple variants in the original, loop through the words
-	   		wordSnake.select("textPath")
-	   			.attr("startOffset",  elapsed%100 + "%")
-
-		}//loopWords
 
 		///////////////////////////////////////////////////////////////////////////
 		/////////////////////// Create the word string legend /////////////////////
@@ -254,6 +427,87 @@ function createWordSnake() {
 			  	.style("fill", darkgrey)
 				.attr("xlink:href", "#circle-legend-path")
 				.text("the most often translated words across all languages");	
+
+		///////////////////////////////////////////////////////////////////////////
+		////////////////////////// Mouse and Click events /////////////////////////
+		///////////////////////////////////////////////////////////////////////////
+
+		function mouseoverNode(d) {
+			//Stop propagation to the SVG
+  			d3.event.stopPropagation();
+  			
+  			//Hide the X mark in the top right because it's a hover
+			d3.select("#tooltip-close").style("visibility", "hidden");
+			//Place the tooltip above the node
+			d3.select(".tooltip-container").style("transform", "translate(-50%, -115%)");
+
+			showTooltip(d);
+		}//function showTooltip
+
+		function hideTooltip(d) {
+			//Hide tooltip
+			d3.select("#tooltip")
+				.transition("tooltip").duration(300)
+				.style("opacity", 0);
+		}//function hideTooltip
+
+		function clickOnNode(d) {
+			//Stop propagation to the SVG
+  			d3.event.stopPropagation();
+
+  			//Hide the X mark in the top right because it's a hover
+			d3.select("#tooltip-close").style("visibility", "visible");
+			//Open the tooltip on top of the node, not above
+			d3.select(".tooltip-container").style("transform", "translate(-50%, -50%)");
+
+  			showTooltip(d);
+		}//function clickOnNode
+
+		//Function to show the tooltip when hovering/clicking on a node
+		function showTooltip(d) {
+			//Find the location of tooltip
+			var xpos = d.x + tmargin.left + 25 + 15 + tooltipOffset;
+			var ypos = d.y + tmargin.top + 20 + 35;
+			//If the window is smaller than the max size of the tooltip, center it
+			if(window.innerWidth < 900) xpos = divWidth/2 + 15;
+
+			//Change title
+			d3.select("#tooltip-translation").text(d.translation);
+
+			//Show and move the tooltip
+			d3.select("#tooltip")
+				.style("top", ypos + "px")
+				.style("left", xpos + "px")
+				.transition("tooltip").duration(400)
+				.style("opacity", 1);
+
+			//Create the line chart
+			tooltipLine.datum(trends.filter(function(l) { return l.word === d.translation; }))
+				.attr("d", line);
+
+			//Get the correct annotations for the chosen language
+			var ann = setupAnnotation(d.translation);
+			//Feed the new data to the annotation function
+			makeAnnotations.annotations(ann.annotations);
+			//Create the annotation
+			annotationGroup.call(makeAnnotations);
+
+			//Add extra circles without textual annotations
+			annotationCircleGroup.selectAll(".annotation-circle")
+				.remove();
+			annotationCircleGroup.selectAll(".annotation-circle")
+				.data(ann.annotationCircles.filter(function(l) { return l.date !== ann.annotations[0].data.date; }))
+				.enter().append("circle")
+				.attr("class", "annotation-circle")
+				.attr("cx", function(d) { return xScale(parseTime(d.date)); })
+				.attr("cy", function(d) { return yScale(d.hits); })
+				.attr("r", annotationCircleRadius);
+
+			//Update the related words
+			wordcloudLayout
+				.words(related.filter(function(l) { return l.word === d.translation; }))
+				.start();
+		}//function showTooltip
 
 	};//function drawWordSnake
 
@@ -379,7 +633,335 @@ function createWordSnake() {
        	svg.select(".word-snake-legend")
        		.attr("transform", "translate(" + grid.xLoc[1] +  "," + (3 * radius * Math.sin(angle)) + ")");
 
+       	// --------------------- Update the tooltip line chart ---------------------- //
+
+		tooltipAvailWidth = divWidth*tooltipMaxSize - tooltipPadding;
+		ttMiddle = tooltipAvailWidth < tooltipMaxWidth;
+		//The size of the annotation dotted circle
+		annotationCircleRadius = ttMiddle ? 10 : 15;
+		//New sizes of the chart
+		tmargin.left = ttMiddle ? 30 : 60;
+		twidth = Math.min(tooltipAvailWidth, tooltipMaxWidth) - tmargin.left - tmargin.right;
+		theight = Math.max(twidth*1/4, 80);
+
+		//Adjust the tooltip SVG
+		d3.select("#tooltip-chart svg")
+			.attr("width", twidth + tmargin.left + tmargin.right)
+			.attr("height", theight + tmargin.top + tmargin.bottom)
+		tooltip.attr("transform", "translate(" + tmargin.left + "," + tmargin.top + ")");
+
+		tooltipOffset = window.innerWidth > 690 ? 0 : -15;
+
+		//Adjust the scales and axes
+		xScale.range([0, twidth]);
+		yScale.range([theight, 0]);
+
+		//Adjust the axes
+	 	xAxis.attr("transform", "translate(" + 0 + "," + theight + ")")
+	 		.call(d3.axisBottom(xScale));
+		yAxis.attr("transform", "translate(" + (twidth) + "," + 0 + ")")
+		    .call(d3.axisLeft(yScale).tickSize(twidth + tmargin.left).tickValues([25,50,75,100]));
+		//Move the y axis textual values
+		var newWords = ["","half as popular","","max search popularity"];
+		if(ttMiddle) newWords = ["","50%","","max popularity"];
+		tooltip.selectAll(".axis-y text")
+			.text(function(d,i) { return newWords[i]; });
+		//Adjust the axes line length a bit
+		tooltip.selectAll(".axis-y line")
+			.attr("x2", function(d,i) { 
+				if(i%2 === 0) return -twidth;
+				else return -(twidth + tmargin.left); 
+			});
+
+		// --------------------- Update the tooltip word cloud ---------------------- //
+
+		wwidth = Math.min(tooltipAvailWidth, tooltipMaxWidth) - wmargin.left - wmargin.right;
+		wheight = ttMiddle ? 120 : Math.max(wwidth*1/4, 80);
+
+		d3.select("#tooltip-word-chart svg")
+			.attr("width", wwidth + wmargin.left + wmargin.right)
+			.attr("height", wheight + wmargin.top + wmargin.bottom)
+		tooltipWordcloud.attr("transform", "translate(" + (wmargin.left+wwidth/2) + "," + (wmargin.top+wheight/2) + ")");
+
+		//Create the scales
+		wordCloudScale
+			.range([9,(ttMiddle ? 14 : 18)]);
+
+		//Adjust the word cloud layout
+		wordcloudLayout = d3.layout.cloud()
+		    .size([wwidth, wheight])
+		    .rotate(0)
+		    .padding(function(l) { return wordCloudScale(l.score)/4; })
+		    .font(function(l) { return l.score > 50 ? "'Dancing Script', cursive" : "'Lato', sans-serif"; })
+		    .fontSize(function(l,i) { return (l.score > 50 ? 2 : 1) * wordCloudScale(l.score); })
+		    .text(function(l) { return l.related; })
+		    .spiral("archimedean")
+		    .on("end", drawWordCloud);
+
 	}//function resizeWordSnake
+
+	///////////////////////////////////////////////////////////////////////////
+	///////////////////////// The different annotations ///////////////////////
+	///////////////////////////////////////////////////////////////////////////
+
+	function setupAnnotation(word) {
+
+		var annotations = [];
+		var annotationCircles = [];
+
+		if(word === "colleague") {
+			annotations = [{
+		        note: {label: "No need to search for colleagues leaving during Christmas", wrap: 120 },
+		        data: {date: "2014-12-28", hits: 52},
+		        type: d3.annotationCalloutCircle,
+		        dy: -60,
+		        dx: 45,
+		        subject: {
+		          radius: annotationCircleRadius,
+		          radiusPadding: 5
+		        }
+		    }];
+			//For the small chart, place the annotation somewhere else
+			if(ttMiddle) {
+				annotations[0].note = {label: "No colleagues leaving during Christmas?", wrap: 100 },
+				annotations[0].data = {date: "2013-12-22", hits: 45},
+				annotations[0].dy = 9;
+				annotations[0].dx = 20;
+			}//if
+			//Add extra circles without annotations
+			annotationCircles = [
+				{date: "2012-12-23", hits: 43},
+				{date: "2013-12-22", hits: 45},
+				{date: "2014-12-28", hits: 52},
+				{date: "2015-12-27", hits: 60},
+				{date: "2016-12-25", hits: 60},
+			];
+		} else if(word === "good") {
+			annotations = [{
+		        note: {label: "The yearly interest in Good Friday, a Christian holiday", wrap: 140 },
+		        data: {date: "2014-04-13", hits: 97},
+		        type: d3.annotationCalloutCircle,
+		        dy: 40,
+		        dx: 30,
+		        subject: {
+		          radius: annotationCircleRadius,
+		          radiusPadding: 5
+		        }
+		    }];
+			//For the small chart, place the annotation somewhere else
+			if(ttMiddle) {
+				annotations[0].note = {label: "The yearly interest in Good Friday", wrap: 110 },
+				annotations[0].data = {date: "2013-03-24", hits: 93},
+				annotations[0].dy = 33;
+				annotations[0].dx = 35;
+			}//if
+			//Add extra circles without annotations
+			annotationCircles = [
+				{date: "2012-04-01", hits: 90},
+				{date: "2013-03-24", hits: 93},
+				{date: "2014-04-13", hits: 97},
+				{date: "2015-03-29", hits: 99},
+				{date: "2016-03-20", hits: 100},
+			];
+		} else if(word === "beautiful") {
+			annotations = [
+				{
+			        note: {label: "South Korean drama 'To the beautiful you' runs for 16 weeks", wrap: 100 },
+			        data: {date: "2012-09-16", hits: 95},
+			        type: d3.annotationCalloutCircle,
+			        dy: -40,
+			        dx: -10,
+			        subject: {
+			          radius: annotationCircleRadius,
+			          radiusPadding: 5
+			        }
+			    },{
+			        note: {label: "Lana Del Rey, Mariah Carey & Candice Glover all release a song with the word 'beautiful'", wrap: 200 },
+			        data: {date: "2013-06-23", hits: 95},
+			        type: d3.annotationCalloutCircle,
+			        dy: 37,
+			        dx: 30,
+			        subject: {
+			          radius: annotationCircleRadius*1.2,
+			          radiusPadding: 5
+			        }
+			    }];
+			//For the small chart, place the annotation somewhere else
+			if(ttMiddle) {
+				annotations[0].note = {label: "South Korean drama 'To the beautiful you'", wrap: 65 },
+				annotations[0].dy = -30;
+				annotations[0].dx = -5;
+				annotations[1].note = {label: "3 popstars all release a song with the word 'beautiful'", wrap: 140 },
+				annotations[1].dy = 32;
+				annotations[1].dx = 20;
+			}//if
+		} else if(word === "work") {
+			annotations = [
+				{
+			        note: {label: "Annual dips to search for work during Christmas", wrap: 120 },
+			        data: {date: "2012-12-23", hits: 55},
+			        type: d3.annotationCalloutCircle,
+			        dy: -65,
+			        dx: -20,
+			        subject: {
+			          radius: annotationCircleRadius,
+			          radiusPadding: 5
+			        }
+			    },{
+				    note: {label: "Fifth Harmony releases 'Work from Home' after Rihanna released 'Work' a month before", wrap: 200 },
+			        data: {date: "2016-02-21", hits: 100},
+			        type: d3.annotationCalloutCircle,
+			        dy: 50,
+			        dx: -20,
+			        subject: {
+			          radius: annotationCircleRadius,
+			          radiusPadding: 5
+			        }
+			    }];
+			//For the small chart, place the annotation somewhere else
+			if(ttMiddle) {
+				annotations[0].note = {label: "Annual dips at Christmas", wrap: 120 };
+				annotations[0].dx = 5;
+				annotations[0].dy = -45;
+				annotations[1].note = {label: "Fifth Harmony releases 'Work from Home'", wrap: 120 };
+				annotations[1].dx = -2;
+				annotations[1].dy = 45;
+			}//if
+		} else if(word === "thursday") {
+			annotations = [
+				{
+			        note: {label: "Sharp spikes for holy Thursday, another Christian holiday", wrap: 120 },
+			        data: {date: "2013-03-24", hits: 86},
+			        type: d3.annotationCalloutCircle,
+			        dy: -40,
+			        dx: -15,
+			        subject: {
+			          radius: annotationCircleRadius,
+			          radiusPadding: 5
+			        }
+			    },
+			    {
+			        note: {label: "The NFL Thursday night football season", wrap: 90 },
+			        data: {date: "2015-11-01", hits: 70},
+			        type: d3.annotationCalloutCircle,
+			        dy: -50,
+			        dx: 20,
+			        subject: {
+			          radius: annotationCircleRadius*1.2,
+			          radiusPadding: 5
+			        }
+			    }];
+			//For the small chart, place the annotation somewhere else
+			if(ttMiddle) {
+				annotations[0].note = {label: "Holy Thursday", wrap: 100 },
+				annotations[0].dy = -20;
+				annotations[0].dx = 15;
+				annotations[1].note = {label: "Thursday night football", wrap: 80 },
+				annotations[1].dy = -30;
+				annotations[1].dx = 0;
+			}//if
+		} else if(word === "mama") {
+			annotations = [
+				{
+			        note: { label: "Typical period for Mother's Day", wrap: 100 },
+			        data: {date: "2013-05-05", hits: 97},
+			        type: d3.annotationCalloutCircle,
+			        dy: -40,
+			        dx: -30,
+			        subject: {
+			          radius: annotationCircleRadius,
+			          radiusPadding: 5
+			        }
+			    },{
+			        note: { label: "The yearly Mnet Asian Music Awards (MAMA) take place", wrap: 140 },
+			        data: {date: "2015-11-29", hits: 96},
+			        type: d3.annotationCalloutCircle,
+			        dy: 50,
+			        dx: -20,
+			        subject: {
+			          radius: annotationCircleRadius,
+			          radiusPadding: 5
+			        }
+			    },{
+			        note: { label: "The horror movie 'Mama' is released", wrap: 100 },
+			        data: {date: "2013-01-31", hits: 70},
+			        type: d3.annotationCalloutCircle,
+			        dy: 35,
+			        dx: -20,
+			        subject: {
+			          radius: annotationCircleRadius*0.9,
+			          radiusPadding: 5
+			        }
+			    }
+			];
+			//For the small chart, place the annotation somewhere else
+			if(ttMiddle) {
+				annotations[0].note = { label: "Mother's Day period", wrap: 100};
+				annotations[0].data = { date: "2014-05-04", hits: 92};
+				annotations[0].dy = 35;
+				annotations[0].dx = 15;
+				annotations[1].note = { label: "The yearly Mnet Asian Music Awards", wrap: 250};
+				annotations[1].dy = -18;
+				annotations[1].dx = -5;
+				annotations[2].note = { label: "Horror movie 'Mama'", wrap: 100};
+				annotations[2].dy = 38;
+				annotations[2].dx = 0;
+			}//if
+		}//else if
+
+		return {annotations: annotations, annotationCircles: annotationCircles};
+
+	}//function setupAnnotation
+
+	///////////////////////////////////////////////////////////////////////////
+	//////////////////////////// Animation run times //////////////////////////
+	///////////////////////////////////////////////////////////////////////////
+
+	var tSnake = d3.timer(animateWordSnake);
+	function animateWordSnake(elapsed) {
+		d3.select("#top-word-string")
+			//.transition("move").duration(1000)
+			//.ease(d3.easeLinear)
+   			.attr("startOffset",  round2((elapsed/2000)%100) + "%");
+	}//function animateWordSnake
+
+	//http://stackoverflow.com/questions/123999/how-to-tell-if-a-dom-element-is-visible-in-the-current-viewport
+	var checkWordSnake = onVisibilityChange(function(visible) {
+		//Stop the animation if the visual is not on the screen
+		if(!visible) tSnake.stop();
+		//If it is on the screen restart it
+		else tSnake.restart(animateWordSnake);
+	});
+	if (window.addEventListener) {
+	    addEventListener('DOMContentLoaded', checkWordSnake, false); 
+	    addEventListener('load', checkWordSnake, false); 
+	    addEventListener('scroll', checkWordSnake, false); 
+	    addEventListener('resize', checkWordSnake, false); 
+	} else if (window.attachEvent)  {
+	    attachEvent('onDOMContentLoaded', checkWordSnake); // IE9+ :(
+	    attachEvent('onload', checkWordSnake);
+	    attachEvent('onscroll', checkWordSnake);
+	    attachEvent('onresize', checkWordSnake);
+	}//else if
+
+	function isElementInViewport (el) {
+	    var rect = el.getBoundingClientRect();
+	    return (
+	        !((rect.top > window.innerHeight && rect.bottom > 0) || (rect.top < 0 && rect.bottom < 0))
+	    );
+	}//function isElementInViewport
+	function onVisibilityChange(callback) {
+	    var old_visible;
+	    return function () {
+	        var visible = isElementInViewport(document.getElementById('viz-word-snake'));
+	        if (visible != old_visible) {
+	            old_visible = visible;
+	            if (typeof callback == 'function') {
+	                callback(visible);
+	            }//if
+	        }//if
+	    }//return
+	}//function onVisibilityChange
 
 }//function createWordSnake
 

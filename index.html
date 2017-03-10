@@ -3,63 +3,31 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">  
 		<meta http-equiv="X-UA-Compatible" content="IE=edge"> 
 		<meta name="viewport" content="width=device-width,initial-scale=1"> 
+		 <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> -->
 
-		<title>in English — by Google News Lab and Visual Cinnamon</title> 
+		<title>in English | by Visual Cinnamon and Google News Lab</title> 
 		<meta name="title" content="in English — by Google News Lab and Visual Cinnamon">
-	    <meta name="author" content="Visual Cinnamon">
-		<meta name="description" content="..."> 
-
-		<!-- <link rel="manifest" href="http://media.rhythm-of-food.net/icon-assets/manifest.json">  -->
-		<!-- <meta name="mobile-web-app-capable" content="yes">  -->
-		<!-- <meta name="application-name" content="in English">  -->
+	    <meta name="author" content="Nadieh Bremer">
+		<meta name="description" content="Dive into the most popular words translated into English through Google Translate"> 
 
 		<meta property="og:title" content="in English — by Google News Lab and Visual Cinnamon"> 
 		<meta property="og:site_name" content="in English"> 
 		<meta property="og:url" content="http://in_english.com/"> <!-- http://in_english.com/  http://inengli.sh/ http://in-engli.sh/ http://beautifulinenglish.com/ -->
-		<meta property="og:description" content="...">
-		<meta property="og:type" content="website">
+		<meta property="og:description" content="Dive into the most popular words translated into English through Google Translate">
+		<meta property="og:type" content="article">
 		<meta property="og:locale" content="en_US"> 
-
 		<!-- <meta property="og:image" content="http:....png">  -->
 		<!-- <meta property="og:image:type" content="image/png">  -->
 		<!-- <meta property="og:image:width" content="1200">  -->
 		<!-- <meta property="og:image:height" content="630">  -->
-		<!-- <meta property="fb:app_id" content="151800628611150">  -->
 
 		<meta property="twitter:card" content="summary_large_image"> 
 		<meta property="twitter:site" content="@googlenewlab"> 
 		<meta property="twitter:creator" content="@NadiehBremer"> 
 		<meta property="twitter:title" content="in English — by Google News Lab and Visual Cinnamon"> 
-		<meta property="twitter:description" content="..."> 
+		<meta property="twitter:description" content="Dive into the most popular words translated into English through Google Translate"> 
 		<!-- <meta property="twitter:image" content="http://....png">  -->
-		<meta itemprop="name" content="in English — by Google News Lab and Visual Cinnamon"> 
-		<meta itemprop="description" content="..."> 
-		<!-- <meta itemprop="image" content="http://....png">  -->
-		<!-- <link rel="icon" sizes="192x192" href="http://media.rhythm-of-food.net/icon-assets/chrome-touch-icon-192x192.png">  -->
 
-		<!-- <meta name="apple-mobile-web-app-capable" content="yes">  -->
-		<!-- <meta name="apple-mobile-web-app-status-bar-style" content="black">  -->
-		<!-- <meta name="apple-mobile-web-app-title" content="in English">  -->
-		<!-- <link rel="apple-touch-icon" href="http://media.rhythm-of-food.net/icon-assets/apple-touch-icon.png">  -->
-	    <!-- <link rel="apple-touch-icon" sizes="57x57" href="http://inauguratespeeches.com/apple-icon-57x57.png">
-	    <link rel="apple-touch-icon" sizes="60x60" href="http://inauguratespeeches.com/apple-icon-60x60.png">
-	    <link rel="apple-touch-icon" sizes="72x72" href="http://inauguratespeeches.com/apple-icon-72x72.png">
-	    <link rel="apple-touch-icon" sizes="76x76" href="http://inauguratespeeches.com/apple-icon-76x76.png">
-	    <link rel="apple-touch-icon" sizes="114x114" href="http://inauguratespeeches.com/apple-icon-114x114.png">
-	    <link rel="apple-touch-icon" sizes="120x120" href="http://inauguratespeeches.com/apple-icon-120x120.png">
-	    <link rel="apple-touch-icon" sizes="144x144" href="http://inauguratespeeches.com/apple-icon-144x144.png">
-	    <link rel="apple-touch-icon" sizes="152x152" href="http://inauguratespeeches.com/apple-icon-152x152.png">
-	    <link rel="apple-touch-icon" sizes="180x180" href="http://inauguratespeeches.com/apple-icon-180x180.png">
-	    <link rel="icon" type="image/png" sizes="192x192" href="http://inauguratespeeches.com/android-icon-192x192.png">
-	    <link rel="icon" type="image/png" sizes="32x32" href="http://inauguratespeeches.com/favicon-32x32.png">
-	    <link rel="icon" type="image/png" sizes="96x96" href="http://inauguratespeeches.com/favicon-96x96.png">
-	    <link rel="icon" type="image/png" sizes="16x16" href="http://inauguratespeeches.com/favicon-16x16.png"> -->
-
-		<!-- <meta name="msapplication-tap-highlight" content="no">  -->
-		<!-- <meta name="msapplication-TileImage" content="http://media.rhythm-of-food.net/icon-assets/ms-touch-icon-144x144-precomposed.png">  -->
-		<!-- <meta name="msapplication-TileColor" content="#14c967">  -->
-
-		<!-- <meta name="theme-color" content="#14c967">  -->
 
 		<!-- Styling -->
 		<link href="css/bootstrap-grid.css" rel="stylesheet">
@@ -75,6 +43,8 @@
 		<script src="js/d3.v4.min.js"></script>
 		<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script> -->
 		<script src="js/vanilla-modal.js"></script>
+		<script src="js/d3-annotation.js"></script>
+		<script src="js/d3-wordcloud.js"></script>
 
 		<!-- Google+ share button -->
 		<!-- <script src="https://apis.google.com/js/platform.js" async defer></script> -->
@@ -141,9 +111,11 @@
     			<div class="col-12 col-lg-7 body-text">	
 	    			<p>Let's start by focusing on the most translated word<sup style="font-size: 0.6em;">&#8251;</sup> for 10 different languages first. There are some rather odd ones that you wouldn't have guessed, such as <i>colleague</i> in Dutch. Even more strange is the fact that it's almost the same word in Dutch: <i>collega</i>, just missing a <i>u</i> and <i>e</i>. Maybe knowing where to place all those vowels compared to the simpler Dutch version makes it difficult ;)</p>
 
-	    			<p>Heartwarming to see, 6 out of the 10 languages have a positive vibe going on, with 3 of them wanting to know the translation for <i>good</i> while the most often translated word across all languages is <i>beautiful</i>, or, as they say in <span id="beautiful-lang" class="beautiful-rotate">German</span>, <span id="beautiful-word" class="beautiful-rotate" style="font-style: italic; white-space: pre;">schon    </span></p>
+	    			<p>Wonderfully, 6 out of the 10 languages have a positive vibe going on, with 3 of them wanting to know the translation for <i>good</i> while the most often translated word across all languages is <i>beautiful</i>, or, as they say in <span id="beautiful-lang" class="beautiful-rotate">German</span>, <span id="beautiful-word" class="beautiful-rotate" style="font-style: italic; white-space: pre;">schon    </span></p>
 
 	    			<p>Connecting all the languages together is a string of the top translated words<sup class="ast">&#8251;</sup> across all languages, starting with <i>beautiful</i> at the top before going through several days of the week and on. The general trend remains a positive one, with <i>love</i>, <i>great</i> & <i>happy</i> placed very high.</p>
+
+	    			<p><span class="bold"><span class="desktop">Hover over</span><span class="mobile">Tab</span> a language "circle" to see the worldwide search interest & related searches of the English translation</span></p>
 	    		</div>
     		</div>
 
@@ -155,6 +127,18 @@
     				</div>
     				<!-- The snake like viz -->
     				<div id="viz-word-snake"></div>
+    				<!-- Create div structure for the tooltip -->
+					<div id="tooltip">
+						<div class="tooltip-container">
+							<span id="tooltip-close">&times;</span>
+							<div id="tooltip-translation">colleague</div>
+							<div class="tooltip-note">worldwide search interest</div>
+							<div id="tooltip-chart"></div>
+							<div class="tooltip-query">related queries & topics</div>
+							<div class="tooltip-rule"></div>
+							<div id="tooltip-word-chart"></div>
+						</div>
+					</div>
 	    		</div>
     		</div>
     	</div>
@@ -290,10 +274,10 @@
 			<p>As a note: Even when it appeared that perhaps the English translation was probably not the intended meaning, we did not change the data.</p>
 	    </div>
 	    <div class="modal">
-	      <div class="modal-inner">
-	        <span data-modal-close>&times;</span>
-	        <div class="modal-content"></div>
-	      </div>
+	    	<div class="modal-inner">
+	    		<span data-modal-close>&times;</span>
+	    		<div class="modal-content"></div>
+	    	</div>
 	    </div>
 
     </footer>
@@ -332,7 +316,7 @@
         		createSimilarityNetwork();
 
         		//Initiate the vanilla JS modal
-				var modal = new VanillaModal.default();
+				//var modal = new VanillaModal.default();
         	}//on load
 
         	var currentWidth = window.innerWidth;

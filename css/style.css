@@ -7,6 +7,7 @@ html {
 
 body {
   margin: 0;
+  overflow-x: hidden;
 }
 
 section {
@@ -306,17 +307,25 @@ header {
 	cursor: default;
 }
 
+.node .circle-background {
+	fill: none;
+	pointer-events: all;
+	cursor: pointer;
+}
+
 .circle-center-translation {
 	font-family: 'Lato', sans-serif;
 	font-size: 0.8em;
 	font-weight: 400;
 	text-anchor: middle;
+	pointer-events: none;
 }
 
 .circle-center-original {
 	font-family: 'Dancing Script', cursive;
 	font-size: 1.7em;
-	text-anchor: middle;	
+	text-anchor: middle;
+	pointer-events: none;	
 }
 
 .circle-center-language {
@@ -325,20 +334,169 @@ header {
 	font-weight: 400;
 	font-style: italic;
 	text-anchor: middle;
+	pointer-events: none;
 }
 
 .circle-path {
 	fill: none;
+	pointer-events: none;
 }
 
 .circle-path-text {
 	font-family: 'Dancing Script', cursive;
 	font-size: 1.1em;
+	pointer-events: none;
 }
 
 .circle-path-legend {
 	font-family: 'Lato', sans-serif;
 	font-size: 0.8em;
+	pointer-events: none;
+}
+
+/* --- Word snake tooltip --- */
+
+/*@media screen and (max-width: 320px) {
+  #tooltip { font-size: 8px !important; }
+}
+@media screen and (min-width: 1000px) {
+  #tooltip { font-size: 12px !important; }
+}*/
+#tooltip {
+	font-family: 'Lato', sans-serif;
+  	pointer-events: none;
+  	text-align: center;  
+  	z-index: 5;
+  	position: absolute;
+  	opacity: 0;
+  	font-size: 10px;
+  	/*font-size: calc(8px + (12 - 8) * (100vw - 320px)/(1000 - 320));*/
+  	cursor: default;
+  	/*margin-left: 2.5%;*/
+    max-width: 100%;
+}
+
+.tooltip-container {
+  position: relative;
+  /*top: 50%;*/
+  /*left: 50%;*/
+  transform: translate(-50%, -115%);
+  max-width: 500px;
+  /*min-width: 100px;*/
+  font-size: 1em;
+  padding: 20px 20px 15px 20px;
+  border-radius: 3px;
+  background: white;
+  color: #000;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.3);
+  -moz-box-shadow: 0 1px 5px rgba(0,0,0,0.3);  
+  border: 1px solid rgba(200,200,200,0.7);
+}
+
+#tooltip-close {
+  	position: absolute;
+  	z-index: 2;
+  	right: 0;
+  	top: 0;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+  	font-size: 20px;
+  	cursor: pointer;
+  	text-align: center;
+}
+
+#tooltip-translation {
+	font-family: 'Dancing Script', cursive;
+	font-size: 3.1em;
+	color: #161616;
+}
+
+.tooltip-note {
+	font-family: 'Lato', sans-serif;
+	font-size: 1em;
+	font-weight: 400;
+	font-style: italic;
+	color: #9a9a9a;
+    margin-top: 0.6em;
+    margin-bottom: 0.9em;
+}
+
+.tooltip-query {
+	font-family: 'Lato', sans-serif;
+	font-size: 1.3em;
+	font-weight: 400;
+	font-style: italic;
+	color: #161616;
+	/*padding-bottom: 0.2em;*/
+    padding-top: 0.7em;
+}
+
+
+.tooltip-rule {
+  height: 1px;
+  margin: 1px auto 3px;
+  background: #ddd;
+  width: 100%;
+  max-width: 400px;
+}
+
+/* ------ Tooltip line chart ------ */
+
+.axis {
+	font-family: inherit;
+}
+.axis path {
+	stroke: none;
+}
+.axis line {
+	stroke: #e4e4e4;	
+}
+.axis text {
+	fill: #a7a7a7;
+	font-size: 0.9em;
+}
+.axis-y-title {
+	text-anchor: middle;
+	font-size: 1em;
+	fill: #161616;
+}
+.axis-y text {
+	text-anchor: start;
+}
+
+.tooltip-line {
+	fill: none;
+	stroke-width: 1.5px;
+}
+
+/* ------ Tooltip annotation ------ */
+
+.annotation path, .annotation-circle {
+	fill: none;
+	stroke: #a7a7a7;
+	/*stroke-width: 1px;*/
+}
+
+.annotation text {
+	fill: #161616;
+}
+
+.annotation-note-bg {
+	fill: none;
+}
+
+.annotation .annotation-subject, .annotation-circle {
+	stroke-dasharray: 2,4;
+    stroke-linecap: round;
+    stroke-width: 1.5px;
+}
+
+/* ------ Tooltip word chart ------ */
+
+.word-cloud {
+	font-family: 'Lato', sans-serif;
+	text-anchor: middle;
 }
 
 /* ------ Tree ring chart ------ */
@@ -446,7 +604,7 @@ header {
 
 /* ------ footer ------ */
 
-@media screen and (max-width: 320px) {
+@media screen and (max-width: 370px) {
   	footer { 
   		padding-top: 4em !important; 
   		text-align: center !important;
