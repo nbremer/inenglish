@@ -325,8 +325,9 @@ function createWordSnake() {
         	.on("mouseout", hideTooltip)
         	.on("click", clickOnNode);
 
-        //Hide tooltip again on body click
+        //Hide tooltip again on body/svg click
         d3.select("body").on("click", hideTooltip);
+        d3.select("#viz-word-snake").on("click", hideTooltip);
         d3.select("#tooltip-close").on("click", hideTooltip);
 
 		///////////////////////////////////////////////////////////////////////////
@@ -449,7 +450,7 @@ function createWordSnake() {
   			d3.event.stopPropagation();
   			
   			//Hide the X mark in the top right because it's a hover
-			d3.select("#tooltip-close").style("visibility", "hidden");
+			//d3.select("#tooltip-close").style("visibility", "hidden");
 
 			//Find the locations of the center of the tooltip on top of the x and y
 			var ypos = d.y + margin.top + chartOffsetTop - tooltipHeight/2;
@@ -489,7 +490,7 @@ function createWordSnake() {
   			d3.event.stopPropagation();
 
   			//Hide the X mark in the top right because it's a hover
-			d3.select("#tooltip-close").style("visibility", "visible");
+			//d3.select("#tooltip-close").style("visibility", "visible");
 
 			//If the window is smaller than the max size of the tooltip, center it
 			if(window.innerWidth < 900) {
