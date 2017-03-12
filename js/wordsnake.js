@@ -57,7 +57,7 @@ function createWordSnake() {
 		.append("g")
 		.attr("transform", "translate(" + tmargin.left + "," + tmargin.top + ")");
 
-	var tooltipOffset = -15;
+	var tooltipOffset = 15;
 	if(window.innerWidth > 690) tooltipOffset = 0;
 
 	//line function
@@ -115,7 +115,7 @@ function createWordSnake() {
 	  	.append("g")
 	  	.attr("class", "annotation-circle");
 
-	 //Set-up the tooltip function
+	//Set-up the tooltip function
 	var makeAnnotations = d3.annotation()
 	  	.accessors({
 	    	x: d => xScale(parseTime(d.date)),
@@ -184,11 +184,21 @@ function createWordSnake() {
   	}//function drawWordCloud
 
 	///////////////////////////////////////////////////////////////////////////
+	///////////////////// Variables for tooltip placement /////////////////////
+	///////////////////////////////////////////////////////////////////////////
+
+	var tooltipHeight = parseInt(d3.select("#tooltip").style("height"));
+	var tooltipWidth = parseInt(d3.select("#tooltip").style("width"));
+	var chartOffsetTop = document.getElementById("viz-word-snake").offsetTop;
+	var chartOffsetLeft = document.getElementById("viz-word-snake").offsetLeft;
+
+	///////////////////////////////////////////////////////////////////////////
 	///////////////////// Figure out variables for layout /////////////////////
 	///////////////////////////////////////////////////////////////////////////
 
 	var angle = 35 * Math.PI/180;
 	var radius = 75;
+	var newXmargin = margin.left; 
 	var n;
 
 	function calculateGrid() {
@@ -214,8 +224,8 @@ function createWordSnake() {
 
 		//New width & divide margins so it will sit in the center
 		width = xLocArc[numCircle];
-		var newMargin = round2((divWidth - width)/2);
-		svg.attr("transform", "translate(" + newMargin + "," + (margin.top) + ")");
+		newXmargin = round2((divWidth - width)/2);
+		svg.attr("transform", "translate(" + newXmargin + "," + (margin.top) + ")");
 
 		return {xLoc: xLoc, xLocArc: xLocArc, numCircle: numCircle };
 	}//function calculateGrid
@@ -440,10 +450,30 @@ function createWordSnake() {
   			
   			//Hide the X mark in the top right because it's a hover
 			d3.select("#tooltip-close").style("visibility", "hidden");
-			//Place the tooltip above the node
-			d3.select(".tooltip-container").style("transform", "translate(-50%, -115%)");
 
-			showTooltip(d);
+			//Find the locations of the center of the tooltip on top of the x and y
+			var ypos = d.y + margin.top + chartOffsetTop - tooltipHeight/2;
+			var xpos = chartOffsetLeft + newXmargin + d.x - tooltipWidth/2;
+
+			//Find the dimensions of the tooltip
+			var nodeLoc = this.getBoundingClientRect();
+			//See where the best placement is, otherwise place it above
+			if(nodeLoc.top + 0.25*radius > tooltipHeight*0.9) { //Does the tooltip fit above?
+				ypos = ypos - 0.5*tooltipHeight - 0.5*radius;
+			} else if(window.innerHeight - nodeLoc.bottom + 0.25*radius > tooltipHeight*0.9) { //Does the tooltip fit below?
+				ypos = ypos + 0.5*tooltipHeight + 0.5*radius;
+			} else if (nodeLoc.left > tooltipWidth) { //Does the tooltip fit left?
+				xpos = xpos - 0.5*tooltipWidth - 0.75*radius;
+			} else if (window.innerWidth - nodeLoc.right > tooltipWidth) { //Does the tooltip fit right?
+				xpos = xpos + 0.5*tooltipWidth + 0.75*radius;
+			} else { //The default is to place it above
+				ypos = ypos - 0.5*tooltipHeight - 0.5*radius;
+			}//else
+
+			//If the window is smaller than the max size of the tooltip, center it
+			if(window.innerWidth < 900) xpos = divWidth/2 + chartOffsetLeft - tooltipWidth/2;
+
+			showTooltip(d, xpos, ypos);
 		}//function showTooltip
 
 		function hideTooltip(d) {
@@ -459,19 +489,41 @@ function createWordSnake() {
 
   			//Hide the X mark in the top right because it's a hover
 			d3.select("#tooltip-close").style("visibility", "visible");
-			//Open the tooltip on top of the node, not above
-			d3.select(".tooltip-container").style("transform", "translate(-50%, -50%)");
 
-  			showTooltip(d);
+			//If the window is smaller than the max size of the tooltip, center it
+			if(window.innerWidth < 900) {
+				xpos = divWidth/2 + chartOffsetLeft - tooltipWidth/2;
+				//Where is the top of the SVG
+				var SVGtop = document.getElementById('viz-word-snake').getBoundingClientRect();
+				ypos = margin.top + chartOffsetTop - SVGtop.top + window.innerHeight/2 - tooltipHeight/2;
+			} else {
+
+				//Find the locations of the center of the tooltip on top of the x and y
+				var ypos = d.y + margin.top + chartOffsetTop - tooltipHeight/2;
+				var xpos = chartOffsetLeft + newXmargin + d.x - tooltipWidth/2;
+
+				//Find the dimensions of the tooltip
+				var nodeLoc = this.getBoundingClientRect();
+				//See where the best placement is, otherwise place it above
+				if(nodeLoc.top + 0.25*radius > tooltipHeight*0.9) { //Does the tooltip fit above?
+					ypos = ypos - 0.5*tooltipHeight - 0.5*radius;
+				} else if(window.innerHeight - nodeLoc.bottom + 0.25*radius > tooltipHeight*0.9) { //Does the tooltip fit below?
+					ypos = ypos + 0.5*tooltipHeight + 0.5*radius;
+				} else if (nodeLoc.left > tooltipWidth) { //Does the tooltip fit left?
+					xpos = xpos - 0.5*tooltipWidth - 0.75*radius;
+				} else if (window.innerWidth - nodeLoc.right > tooltipWidth) { //Does the tooltip fit right?
+					xpos = xpos + 0.5*tooltipWidth + 0.75*radius;
+				} else { //The default is to place it above
+					ypos = ypos - 0.5*tooltipHeight - 0.5*radius;
+				}//else
+
+			}//else
+
+  			showTooltip(d, xpos, ypos);
 		}//function clickOnNode
 
 		//Function to show the tooltip when hovering/clicking on a node
-		function showTooltip(d) {
-			//Find the location of tooltip
-			var xpos = d.x + tmargin.left + 25 + 15 + tooltipOffset;
-			var ypos = d.y + tmargin.top + 20 + 35;
-			//If the window is smaller than the max size of the tooltip, center it
-			if(window.innerWidth < 900) xpos = divWidth/2 + 15;
+		function showTooltip(d, xpos, ypos) {
 
 			//Change title
 			d3.select("#tooltip-translation").text(d.translation);
@@ -652,7 +704,7 @@ function createWordSnake() {
 			.attr("height", theight + tmargin.top + tmargin.bottom)
 		tooltip.attr("transform", "translate(" + tmargin.left + "," + tmargin.top + ")");
 
-		tooltipOffset = window.innerWidth > 690 ? 0 : -15;
+		tooltipOffset = window.innerWidth > 690 ? 0 : 15;
 
 		//Adjust the scales and axes
 		xScale.range([0, twidth]);
@@ -699,6 +751,13 @@ function createWordSnake() {
 		    .text(function(l) { return l.related; })
 		    .spiral("archimedean")
 		    .on("end", drawWordCloud);
+
+		// --------------------- Update the tooltip positioning ---------------------- //
+
+		tooltipHeight = parseInt(d3.select("#tooltip").style("height"));
+		tooltipWidth = parseInt(d3.select("#tooltip").style("width"));
+		chartOffsetTop = document.getElementById("viz-word-snake").offsetTop;
+		chartOffsetLeft = document.getElementById("viz-word-snake").offsetLeft;
 
 	}//function resizeWordSnake
 

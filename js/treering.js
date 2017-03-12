@@ -20,7 +20,7 @@ function createTreeRings() {
 
 	var divWidth = parseInt(d3.select("#viz-tree-ring").style("width"));
 	var windowHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-	var size = Math.min(divWidth, windowHeight * 0.7, 600);
+	var size = Math.min(divWidth, windowHeight * 0.65, 600);
 
 	//Sizes of the big circle
 	var marginSize = Math.round(marginScale(size));
@@ -225,21 +225,36 @@ function createTreeRings() {
 		///////////////////////////// Switch on click /////////////////////////////
 		///////////////////////////////////////////////////////////////////////////
 
+		var timeOutSwitch, timeOutSmallCircle, timeOutBigCircle;
+
 		function switchChosenLanguage(d) {
+
+			//Clear previous timeouts if you click on another circle too fast
+			clearTimeout(timeOutSwitch);
+			clearTimeout(timeOutSmallCircle);
+			clearTimeout(timeOutBigCircle);
 
 			//Move the page to the top of the main circle
 			var offsetTop = document.getElementById('viz-tree-ring-title').getBoundingClientRect().top + document.body.scrollTop;
-			//https://bl.ocks.org/mbostock/1649463
-			d3.transition()
-			    .duration(1000)
-			    .tween("scroll", scrollTween(offsetTop));
+			
+			var timeOut = 0;
+			//If not already at the top, first move it
+			if(Math.round(document.body.scrollTop) !== Math.round(offsetTop)) {
+				timeOut = 1000;
 
-			function scrollTween(offset) {
-			  return function() {
-			    var i = d3.interpolateNumber(document.body.scrollTop, offset);
-			    return function(t) { scrollTo(0, i(t)); };
-			  };
-			}//function scrollTween
+				//https://bl.ocks.org/mbostock/1649463
+				d3.transition()
+				    .duration(1000)
+				    .tween("scroll", scrollTween(offsetTop));
+
+				function scrollTween(offset) {
+				  return function() {
+				    var i = d3.interpolateNumber(document.body.scrollTop, offset);
+				    return function(t) { scrollTo(0, i(t)); };
+				  };
+				}//function scrollTween
+
+			}//if
 
 			//Move the page to the top of the main circle - needs jQuery
 		    // $("html, body").animate({
@@ -254,22 +269,14 @@ function createTreeRings() {
 			var svgBig = d3.select("#tree-ring-svg-big").select(".tree-ring-group");
 			var svgSmall = d3.select(this).select(".tree-ring-group");
 
-			//Wait for the scroll to end before doing the other animations
-			setTimeout(function() {
+			//Change the top title
+			var text = chosenLanguage !== "all" ? languageMap[chosenLanguage] : "all 10 languages combined";
+			d3.select("#tree-ring-language-title")
+				.style("font-size", chosenLanguage !== "all" ? "1.3em" : "1em")
+				.text(text);
 
-				//Change the top title
-				d3.select("#tree-ring-language-title")
-					.transition().duration(1000)
-					.style("color", "white")
-					.on("end", function() {
-						var text = chosenLanguage !== "all" ? languageMap[chosenLanguage] : "all 10 languages combined";
-						var size = chosenLanguage !== "all" ? "1.3em" : "1em";
-						d3.select(this)
-							.style("font-size", size)
-							.text(text)
-							.transition().duration(500)
-							.style("color", darkgrey);
-					});
+			//Wait for the scroll to end before doing the other animations
+			timeOutSwitch = setTimeout(function() {
 
 				///////////////////////////////////////////////////////////////////////////
 				////////////////////// Change the small clicked circle ////////////////////
@@ -291,20 +298,15 @@ function createTreeRings() {
 						d.translationD = subsetData[i].translation;
 					});
 
-				//Change the top title of the small circle
-				svgSmall.select(".ring-center-text")
-					.transition().duration(2000)
-					.style("fill", "white")
-					//.call(endall, function() { updateTextPaths(0, 0, d.treeID, 0); });
-					.on("end", function() {
-						d3.select(this)
-							.text(languageMap[oldLanguage])
-							.transition().duration(500)
-							.style("fill", darkgrey);
+				//Do some stuff halfway during the rotation
+				timeOutSmallCircle = setTimeout(function() {
+					//Update the text paths of the small circle as well
+					updateTextPaths(0, 0, d.treeID, 0);
 
-						//Update the text paths of the small circle as well
-						updateTextPaths(0, 0, d.treeID, 0); 
-					});
+					//Change the top title of the small circle
+					svgSmall.select(".ring-center-text")
+						.text(languageMap[oldLanguage]);
+				}, 2000);
 
 				///////////////////////////////////////////////////////////////////////////
 				///////////////////////// Change the big circle ///////////////////////////
@@ -328,7 +330,7 @@ function createTreeRings() {
 				rotateTransition("circle-end", "startOffsetEnd", offset, "out");
 
 				//Update the texts along the paths
-				setTimeout(updateText, durationTimes[durationTimes.length - 1] + delayTimes[delayTimes.length - 1]);
+				timeOutBigCircle = setTimeout(updateText, durationTimes[durationTimes.length - 1] + delayTimes[delayTimes.length - 1] - 600);
 
 				function updateText() {
 					//Update the data of the big circle
@@ -349,7 +351,7 @@ function createTreeRings() {
 					rotateTransition("circle-end", "startOffsetEnd", 0, "in");	
 				}//function updateText
 
-			}, 1000);
+			}, timeOut);
 
 		}//function switchChosenLanguage
 
@@ -497,7 +499,7 @@ function createTreeRings() {
 
 		var divWidth = parseInt(d3.select("#viz-tree-ring").style("width"));
 		var windowHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-		var size = Math.min(divWidth, windowHeight * 0.7, 600);
+		var size = Math.min(divWidth, windowHeight * 0.65, 600);
 
 		//Adjust the big circle
 		var marginSize = Math.round(marginScale(size));
@@ -581,14 +583,4 @@ function createTreeRings() {
 	}//resizeTreeRings
 
 }//function createTreeRings 
-
-///////////////////////////////////////////////////////////////////////////
-/////////////////////////// Extra functions ///////////////////////////////
-///////////////////////////////////////////////////////////////////////////
-
-//Round number to 2 behind the decimal
-function round2(num) {
-	return (Math.round((num + 0.00001) * 100)/100);
-}//round2
-
 

@@ -10,24 +10,30 @@
 	    <meta name="author" content="Nadieh Bremer">
 		<meta name="description" content="Dive into the most popular words translated into English through Google Translate"> 
 
+		<!-- Favicon -->
+		<link rel="icon" type="image/png" sizes="192x192" href="img/favicon-192x192.png" />
+		<link rel="icon" type="image/png" sizes="96x96" href="img/favicon-96x96.png" />
+		<link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png" />
+		<link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png" />
+
+		<!-- Social media -->
 		<meta property="og:title" content="in English — by Google News Lab and Visual Cinnamon"> 
 		<meta property="og:site_name" content="in English"> 
-		<meta property="og:url" content="http://in_english.com/"> <!-- http://in_english.com/  http://inengli.sh/ http://in-engli.sh/ http://beautifulinenglish.com/ -->
+		<!-- <meta property="og:url" content="https://googletrends.github.io/inEnglish"> http://in_english.com/  http://inengli.sh/ http://in-engli.sh/ http://beautifulinenglish.com/ -->
 		<meta property="og:description" content="Dive into the most popular words translated into English through Google Translate">
 		<meta property="og:type" content="article">
 		<meta property="og:locale" content="en_US"> 
-		<!-- <meta property="og:image" content="http:....png">  -->
-		<!-- <meta property="og:image:type" content="image/png">  -->
-		<!-- <meta property="og:image:width" content="1200">  -->
-		<!-- <meta property="og:image:height" content="630">  -->
+		<!-- <meta property="og:image" content="https://googletrends.github.io/inEnglish/img/inEnglish_header-1280x720.jpg">  -->
+		<meta property="og:image:type" content="image/jpg"> 
+		<meta property="og:image:width" content="1280"> 
+		<meta property="og:image:height" content="720"> 
 
 		<meta property="twitter:card" content="summary_large_image"> 
 		<meta property="twitter:site" content="@googlenewlab"> 
 		<meta property="twitter:creator" content="@NadiehBremer"> 
 		<meta property="twitter:title" content="in English — by Google News Lab and Visual Cinnamon"> 
 		<meta property="twitter:description" content="Dive into the most popular words translated into English through Google Translate"> 
-		<!-- <meta property="twitter:image" content="http://....png">  -->
-
+		<!-- <meta property="twitter:image" content="https://googletrends.github.io/inEnglish/img/inEnglish_header-1280x720.jpg">  -->
 
 		<!-- Styling -->
 		<link href="css/bootstrap-grid.css" rel="stylesheet">
@@ -46,21 +52,9 @@
 		<script src="js/d3-annotation.js"></script>
 		<script src="js/d3-wordcloud.js"></script>
 
-		<!-- Google+ share button -->
-		<!-- <script src="https://apis.google.com/js/platform.js" async defer></script> -->
 	</head>
 
     <body>
-
-    <!-- Facebook share button -->
-	<!-- <div id="fb-root"></div>
-	<script>(function(d, s, id) {
-	  var js, fjs = d.getElementsByTagName(s)[0];
-	  if (d.getElementById(id)) return;
-	  js = d.createElement(s); js.id = id;
-	  js.src = "//connect.facebook.net/nl_NL/sdk.js#xfbml=1&version=v2.8";
-	  fjs.parentNode.insertBefore(js, fjs);
-	}(document, 'script', 'facebook-jssdk'));</script> -->
     	
     <!-- Introduction with the most common translated word -->
     <header>
@@ -247,13 +241,6 @@
 
 	    				<a href="https://www.facebook.com/sharer/sharer.php?u=http://www.BeautifulInEnglish.com" onclick="javascript:window.open(this.href, '', 'menubar=no, toolbar=no, resizable=yes, scrollbars=yes, height=600, width=600'); return false;">Facebook</a>
     				</p>
-    				
-    				<!-- <a href="https://twitter.com/share" class="twitter-share-button" data-text="What are the most popular words translated through Google Translate?" data-url="http://www.BeautifulInEnglish.com" data-via="googlenewslab" data-show-count="false">Tweet</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script> -->
-
-    				<!-- https://developers.facebook.com/docs/plugins/share-button#configurator -->
-    				<!-- <div class="fb-share-button" data-href="http://www.BeautifulInEnglish.com" data-layout="button" data-size="small" data-mobile-iframe="true"><a class="fb-xfbml-parse-ignore" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fwww.BeautifulInEnglish.com%2F&amp;src=sdkpreparse">Share</a></div> -->
-
-    				<!-- <div class="g-plus" data-action="share" data-href="http://www.BeautifulInEnglish.com"></div> -->
 
 	    			<h5 style="margin-top: 1em;">Team</h5>
 	    			<p style="margin-bottom: 1.6em;"><span class="bold">in English</span> was created by <a href="https://twitter.com/nadiehbremer" target="_new">Nadieh Bremer</a> from <a href="https://www.visualcinnamon.com/" target="_new">Visual Cinnamon</a> with the assistance of <a href="http://newslab.withgoogle.com" target="_new">Google News Lab</a>: <a href="https://twitter.com/smfrogers" target="_new">Simon Rogers</a> & <a href="https://twitter.com/albertocairo" target="_new">Alberto Cairo</a> for art direction, and <a href="https://twitter.com/jealee_" target="_new">Jennifer Lee</a> & Rick Genter for the raw data gathering</p>
@@ -274,7 +261,7 @@
     	<div id="methodology-modal" style="display: none;">
 	      	<h5 style="margin-top: 0.25em;">Methodology</h5>
 			<p>All the single word translations, performed through Google Translate, from the 10 chosen languages to English were taken into account for the period between August - December 2016. To get only the nouns and adjectives each word was tagged with its grammatical form using the English translation (for Dutch, German, Italian and Polish this was also done using the original word).</p> 
-			<p>Getting the correct grammatical form can be difficult when you only have one word to go on (for example, <i>unternehmen</i> in German can be translated to the noun <i>companies</i>, however it is more likely to mean the verb <i>undertake</i>). Therefore, words for which the automatically tagged result wasn't 100% trusted, were manually checked by looking up the original word on <A href="https://www.wiktionary.org/" target="_new">Wiktionary</a>.</p>
+			<p>Getting the correct grammatical form can be difficult when you only have one word to go on (for example, <i>unternehmen</i> in German can be translated to the noun <i>companies</i>, however it can also mean the verb <i>undertake</i>). Therefore, words for which the automatically tagged result wasn't 100% trusted, were manually checked by looking up the original word on <A href="https://www.wiktionary.org/" target="_new">Wiktionary</a> and seeing which translation was the first mentioned.</p>
 			<p>Some languages have multiple words for the same English translation. This can be because they use male and female forms, such as <i>hermosa</i> and <i>hermoso</i> in Spanish, meaning <i>beautiful</i>, or synonyms like <i>bonito</i>, which also means <i>beautiful</i>. Therefore, to make a proper comparison between languages, all the words with the same English translation were combined from which the top 10 was distilled.</p>
 			<p>The ranking for all the languages combined was calculated by adding up the separate language rankings. For example, the number 1 word for each language gets 500 points, the number 2 gets 499 points, etc until the 500th word. By adding up the rankings from all the languages, the word with the most points was marked as the number 1 overall, and so on.</p>
 			<p>As a note: Even when it appeared that perhaps the English translation was probably not the intended meaning, we did not change the data.</p>
@@ -292,7 +279,6 @@
     	<script src="js/wordsnake.js"></script>
         <script src="js/treering.js"></script>
         <script src="js/similarityNetwork.js"></script>
-
         <script>
     		///////////////////////////////////////////////////////////////////////////
 			/////////////////////////// General variables /////////////////////////////
@@ -314,13 +300,16 @@
 			languageMap["ru"] = "Russian";
 			languageMap["tr"] = "Turkish";
 			languageMap["all"] = "All languages";
-	
+
+    		///////////////////////////////////////////////////////////////////////////
+			/////////////////////////// General functions /////////////////////////////
+			///////////////////////////////////////////////////////////////////////////
+
         	window.onload = function() {
         		createWordSnake();
         		loopBeautiful();
         		createTreeRings();
         		createSimilarityNetwork();
-
         		//Initiate the vanilla JS modal
 				var modal = new VanillaModal.default();
         	}//on load
@@ -337,6 +326,11 @@
 				};
 			});//on resize
 
+			//Round number to 2 behind the decimal
+			function round2(num) {
+				return (Math.round((num + 0.00001) * 100)/100);
+			}//round2
+
         	//Endall function for d3v4
 			function endall(transition, callback) { 
 			    if (typeof callback !== "function") throw new Error("Wrong callback in endall");
@@ -346,7 +340,6 @@
 			        .each(function() { ++n; }) 
 			        .on("end", function() { if (!--n) callback.apply(this, arguments); }); 
 			}//endall 
-
         </script>
     </body>
 </html>
