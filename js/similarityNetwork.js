@@ -242,9 +242,10 @@ function createSimilarityNetwork() {
 
 			//Fade out the textPaths and then remove them
 			svg.selectAll(".link").selectAll("textPath")
-				.transition().duration(200)
+				.transition("fade").duration(200)
 				.style("opacity", 0)
-				.call(endall, intermediateSwitch);
+				.call(endall, intermediateSwitch)
+				.remove();
 
 			function intermediateSwitch() {
 

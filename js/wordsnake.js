@@ -466,8 +466,9 @@ function createWordSnake() {
 				xpos = xpos - 0.5*tooltipWidth - 0.75*radius;
 			} else if (window.innerWidth - nodeLoc.right > tooltipWidth) { //Does the tooltip fit right?
 				xpos = xpos + 0.5*tooltipWidth + 0.75*radius;
-			} else { //The default is to place it above
-				ypos = ypos - 0.5*tooltipHeight - 0.5*radius;
+			} else { //The default is to place it above or below depending on which has the most space
+				if(window.innerHeight - (nodeLoc.top + radius) < window.innerHeight/2) ypos = ypos - 0.5*tooltipHeight - 0.5*radius;
+				else ypos = ypos + 0.5*tooltipHeight + 0.5*radius;
 			}//else
 
 			//If the window is smaller than the max size of the tooltip, center it
@@ -978,11 +979,12 @@ function createWordSnake() {
 	//////////////////////////// Animation run times //////////////////////////
 	///////////////////////////////////////////////////////////////////////////
 
-	var tSnake = d3.timer(animateWordSnake);
+	var tSnake = d3.interval(animateWordSnake, 1000);
 	function animateWordSnake(elapsed) {
 		d3.select("#top-word-string")
-			//.transition("move").duration(1000)
-			//.ease(d3.easeLinear)
+			.interrupt()
+			.transition("move").duration(1000)
+			.ease(d3.easeLinear)
    			.attr("startOffset",  round2((elapsed/2000)%100) + "%");
 	}//function animateWordSnake
 
@@ -991,7 +993,10 @@ function createWordSnake() {
 		//Stop the animation if the visual is not on the screen
 		if(!visible) tSnake.stop();
 		//If it is on the screen restart it
-		else tSnake.restart(animateWordSnake);
+		else {
+			d3.select("#top-word-string").attr("startOffset",  "0%");
+			tSnake.restart(animateWordSnake);
+		}//else
 	});
 	if (window.addEventListener) {
 	    addEventListener('DOMContentLoaded', checkWordSnake, false); 
