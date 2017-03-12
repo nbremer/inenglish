@@ -119,8 +119,11 @@ h6 {
 }
 .ast {
 	font-size: 0.6em; 
-	color:#a7a7a7; 
-	font-weight: 300;
+	/*color: #161616; */
+	/*font-weight: 300;*/
+}
+.ast a, .ast a:link, .ast a:visited, .ast a:active, .ast a:hover {
+  text-decoration: none;
 }
 
 /* ------ handlettering section ------ */
