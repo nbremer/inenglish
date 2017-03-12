@@ -991,9 +991,10 @@ function createWordSnake() {
 	//http://stackoverflow.com/questions/123999/how-to-tell-if-a-dom-element-is-visible-in-the-current-viewport
 	var checkWordSnake = onVisibilityChange(function(visible) {
 		//Stop the animation if the visual is not on the screen
-		if(!visible) tSnake.stop();
-		//If it is on the screen restart it
-		else {
+		if(!visible) {
+			tSnake.stop();
+			d3.select("#top-word-string").interrupt("move");
+		} else { //If it is on the screen restart it
 			d3.select("#top-word-string").attr("startOffset",  "0%");
 			tSnake.restart(animateWordSnake);
 		}//else
