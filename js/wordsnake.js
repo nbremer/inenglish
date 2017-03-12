@@ -118,8 +118,8 @@ function createWordSnake() {
 	//Set-up the tooltip function
 	var makeAnnotations = d3.annotation()
 	  	.accessors({
-	    	x: d => xScale(parseTime(d.date)),
-	    	y: d => yScale(d.hits)
+	    	x: function(d) { return xScale(parseTime(d.date)); },
+	    	y: function(d) { return yScale(d.hits); }
 	  	});
 
 	///////////////////////////////////////////////////////////////////////////
