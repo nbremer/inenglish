@@ -95,12 +95,6 @@ function createWordSnake() {
 			else return -(twidth + tmargin.left); 
 		});
 
-	// //Create the y-axis title
-	// tooltip.append("text")
-	// 	.attr("class", "axis-y-title")
-	// 	.attr("transform", "rotate(-90)translate(" + (-theight/2) + "," + (-tmargin.left/2) + ")")
-	// 	.text("popularity \u25B8");
-
 	//Set-up the line
 	var tooltipLine = tooltip.append("path")
       	.attr("class", "tooltip-line")
@@ -359,23 +353,6 @@ function createWordSnake() {
 	    	.attr("y", -25)
 	    	.style("fill", lightgrey)
 	    	.text(function(d) { return d.language; });
-
-		var t = d3.interval(loopWords, 4500);
-		function loopWords() {
-			//For the languages that have multiple variants in the original, loop through the words
-	   		originalText.filter(function(d) { return d.originalMore; })
-	   			.transition().duration(500).delay(function(d) { return Math.random() * 1500; })
-	   			//.style("opacity", 0)
-	   			.on("end", function() {
-	   				d3.select(this)
-		   			.text(function(d) { 
-		   				d.counter = (d.counter + 1) % d.originalSeparate.length;
-		   				return d.originalSeparate[d.counter]; 
-		   			})
-		   			.transition().duration(1500 + Math.random()*500).delay(function(d) { return Math.random() * 1500; })
-	   				.style("opacity", 1);
-	   			});
-		}//loopWords
 
 		///////////////////////////////////////////////////////////////////////////
 		////////////////////// Create the outer circular paths ////////////////////
@@ -980,34 +957,48 @@ function createWordSnake() {
 	//////////////////////////// Animation run times //////////////////////////
 	///////////////////////////////////////////////////////////////////////////
 
-	var tSnake = d3.interval(animateWordSnake, 1000);
-	function animateWordSnake(elapsed) {
+	var loopWordsnakeWords = setInterval(loopWords, 4500);
+	//Go through the different options for languages with multiple words for the same English translation
+	function loopWords() {
+		//For the languages that have multiple variants in the original, loop through the words
+   		d3.selectAll(".circle-center-original").filter(function(d) { return d.originalMore; })
+   			.transition().duration(0).delay(function(d) { return Math.random() * 2500; })
+   			.on("end", function() {
+   				d3.select(this)
+		   			.text(function(d) { 
+		   				d.counter = (d.counter + 1) % d.originalSeparate.length;
+		   				return d.originalSeparate[d.counter]; 
+		   			});
+   			});
+	}//loopWords
+
+	//Animate the top 100 word snake
+	function animateWordSnake() {
 		d3.select("#top-word-string")
-			.interrupt()
-			.transition("move").duration(1000)
+			.transition("move").duration(120000)
 			.ease(d3.easeLinear)
-   			.attr("startOffset",  round2((elapsed/2000)%100) + "%");
+			.attr("startOffset",  "100%")
+			.transition("move").duration(120000)
+			.ease(d3.easeLinear)
+			.attr("startOffset",  "0%");
 	}//function animateWordSnake
 
 	//http://stackoverflow.com/questions/123999/how-to-tell-if-a-dom-element-is-visible-in-the-current-viewport
 	var checkWordSnake = onVisibilityChange(function(visible) {
 		//Stop the animation if the visual is not on the screen
 		if(!visible) {
-			tSnake.stop();
 			d3.select("#top-word-string").interrupt("move");
+			clearInterval(loopWordsnakeWords);
 		} else { //If it is on the screen restart it
 			d3.select("#top-word-string").attr("startOffset",  "0%");
-			tSnake.restart(animateWordSnake);
+			animateWordSnake();
+			loopWordsnakeWords = setInterval(loopWords, 4500);
 		}//else
 	});
-	if (window.addEventListener) {
-	    addEventListener('DOMContentLoaded', checkWordSnake, false); 
-	    addEventListener('load', checkWordSnake, false); 
+	if (window.addEventListener) { 
 	    addEventListener('scroll', checkWordSnake, false); 
 	    addEventListener('resize', checkWordSnake, false); 
 	} else if (window.attachEvent)  {
-	    attachEvent('onDOMContentLoaded', checkWordSnake); // IE9+ :(
-	    attachEvent('onload', checkWordSnake);
 	    attachEvent('onscroll', checkWordSnake);
 	    attachEvent('onresize', checkWordSnake);
 	}//else if

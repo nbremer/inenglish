@@ -18,6 +18,10 @@ svg {
 	overflow: visible;
 }
 
+section {
+	background-color: white;
+}
+
 h1, h2, h3, h4, h5, h6 {
   	margin-top: 0;
   	margin-bottom: .5rem;
@@ -119,11 +123,10 @@ h6 {
 }
 .ast {
 	font-size: 0.6em; 
-	/*color: #161616; */
-	/*font-weight: 300;*/
 }
 .ast a, .ast a:link, .ast a:visited, .ast a:active, .ast a:hover {
   text-decoration: none;
+  color: inherit;
 }
 
 /* ------ handlettering section ------ */
@@ -140,7 +143,7 @@ img {
   height: auto;
 }
 
-.black-block {
+section.black-block {
 	width: 100%;
     background-color: black; 
     background-image: url(../img/background_swirl_long.png);
@@ -176,6 +179,7 @@ header {
     background-size: auto 100%;
     background-position: center bottom;
     padding-bottom: 5em;
+    margin-bottom: -1px; /* to get rid of strange black line */
 }
 
 @media screen and (max-width: 320px) {
@@ -623,6 +627,7 @@ footer {
 	padding-bottom: 1em;
 	color: white; 
 	text-align: left;
+	margin-top: -1px; /* to get rid of strange black line */
 }
 
 footer a, footer a:link, footer a:visited, footer a:active {

@@ -211,7 +211,7 @@ function createSimilarityNetwork() {
 		node.append("text")
 			.attr("class", "node-language-text")
 			.attr("dy", "0.35em")
-			.text(function(d) { return languageMap[d.name]; })
+			.text(function(d) { return languageMap[d.name]; });
 
 	});//d3.csv
 
@@ -352,15 +352,15 @@ function createSimilarityNetwork() {
 
 	function updateLinkTextPaths() {
 
-		var svg = d3.selectAll("#viz-similarity-network svg g");
+		var svg = d3.selectAll("#viz-similarity-network svg");
 
 		//Remove all the text paths, because we need to recalculate the text lengths
 		svg.selectAll("textPath").remove();
 
 		//Add the bold middle translation back in
-		svg.select(".link-text-bold")
+		svg.selectAll(".link-text-bold")
 			.filter(function(d) { return middle(d); })
-			.each(function(d) {
+			.each(function(d,i) {
 		    	var el = d3.select(this);
 
 		    	var startOff = d.st === "stn" ? "60%" : "40%";
@@ -370,9 +370,10 @@ function createSimilarityNetwork() {
 		    		if(d.target.name === middleLang && d.source.y === 0) startOff = "50%";
 		    		else if(d.source.name === middleLang && d.target.y === 0) startOff = "50%";
 		    	}//if
-
+					
 				el.append("textPath")
-					.style("text-shadow", "0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff")
+					.style("color", darkgrey)
+					.style("text-shadow", "0px 1px 0px #fff, 1px 0px 0px #fff, 0px -1px 0px #fff, -1px 0px 0px #fff")
 				  	.attr("class", "link-text-middle")
 				  	.attr("startOffset", startOff)
 				  	.style("text-anchor","middle")

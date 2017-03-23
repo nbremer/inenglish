@@ -211,11 +211,28 @@ function createTreeRings() {
 			.text(function(d) { return '\u00A0\u00A0' + d.translationD + '\u00A0\u00A0'; });
 
 		//Create an SVG text element and append a textPath element for the other parts
-		var textRing = ring.append("text")
-			.attr("class", function(d) { return "ring-text noselect rank-" + d.rank; })
+		var textRing = ring.filter(function(d) { return d.treeID !== 0; })
+			.append("text")
+			.attr("class", function(d) { return "ring-text small noselect rank-" + d.rank; })
 			.style("fill", "none")
 			.text(function(d) { 
-				return '\u00A0\u00A0' + (d.treeID === 0 ? d.originalD : d.translationD) + '\u00A0\u00A0'; 
+				return '\u00A0\u00A0' + d.translationD + '\u00A0\u00A0'; 
+			});
+			
+		//Create one for the left and right part, because IE cannot handle multiple textPath elements under the same text
+		var textRingLeft = ring.filter(function(d) { return d.treeID === 0; })
+			.append("text")
+			.attr("class", function(d) { return "ring-text left noselect rank-" + d.rank; })
+			.style("fill", "none")
+			.text(function(d) { 
+				return '\u00A0\u00A0' + d.originalD + '\u00A0\u00A0'; 
+			});
+		var textRingRight = ring.filter(function(d) { return d.treeID === 0; })
+			.append("text")
+			.attr("class", function(d) { return "ring-text right noselect rank-" + d.rank; })
+			.style("fill", "none")
+			.text(function(d) { 
+				return '\u00A0\u00A0' + d.originalD + '\u00A0\u00A0'; 
 			});
 
 		//Create the textPaths that run in circles
@@ -411,8 +428,66 @@ function createTreeRings() {
 				});
 		}//if
 
-		//Add the smaller text to both sides back in & the text for the smaller circles
-		svg.selectAll(".ring").select(".ring-text")
+		//Add the smaller text to both sides back in
+		svg.selectAll(".ring").select(".ring-text.right")
+		    .each(function(d,i) {
+		    	var el = d3.select(this);
+
+				//Find and save the width of one word
+	        	d.textWidth = round2(this.getComputedTextLength());
+	        	//Get the length of the path
+		        d.pathLength = round2(document.getElementById("tree-" + d.treeID + "-rank-" + d.rank).getTotalLength());
+				//Adjust for the Safari bug
+				d.pathLength = d.pathLength/5;
+				d.textWidthBold = textWidthBold[i];
+				//The offset to start the text
+				var textOffset = (d.textWidthBold/d.pathLength*100/2) / 5;
+				//How often does the text fit in the remaining path
+				var textFit = Math.round( ((50 - textOffset)/100 * d.pathLength) / d.textWidth ) + 1;
+
+				//Add a path for the after text
+				el.append("textPath")
+					.attr("class", "ring-text-normal circle-end")
+					.attr("startOffset", function(t) {
+						t.startOffsetEnd = round2(50 + textOffset);
+						return (t.startOffsetEnd+extraOffset) + "%";
+					})
+					.style("text-anchor","start")
+					.style("fill", middlegrey)
+					.attr("xlink:href", "#tree-" + d.treeID + "-rank-" + d.rank)
+					.text(new Array(textFit).join( '\u00A0\u00A0' + d.originalD + '\u00A0\u00A0' ));
+		    });
+		svg.selectAll(".ring").select(".ring-text.left")
+		    .each(function(d,i) {
+		    	var el = d3.select(this);
+
+				//Find and save the width of one word
+	        	d.textWidth = round2(this.getComputedTextLength());
+	        	//Get the length of the path
+		        d.pathLength = round2(document.getElementById("tree-" + d.treeID + "-rank-" + d.rank).getTotalLength());
+				//Adjust for the Safari bug
+				d.pathLength = d.pathLength/5;
+				d.textWidthBold = textWidthBold[i];
+				//The offset to start the text
+				var textOffset = (d.textWidthBold/d.pathLength*100/2) / 5;
+				//How often does the text fit in the remaining path
+				var textFit = Math.round( ((50 - textOffset)/100 * d.pathLength) / d.textWidth ) + 1;
+
+				//Add a path for the before text
+				el.append("textPath")
+					.attr("class", "ring-text-normal circle-front")
+					.attr("startOffset", function(t) {
+						t.startOffsetFront = round2(50 - textOffset);
+						return (t.startOffsetFront+extraOffset) + "%";
+					})
+					.style("text-anchor","end")
+					.style("fill", middlegrey)
+					.attr("xlink:href", "#tree-" + d.treeID + "-rank-" + d.rank)
+					.text(new Array(textFit).join( '\u00A0\u00A0' + d.originalD + '\u00A0\u00A0' ));
+		    });
+			
+		//Replace the text on the small rings
+		svg.selectAll(".ring").select(".ring-text.small")
 		    .each(function(d,i) {
 		    	var el = d3.select(this);
 
@@ -421,51 +496,18 @@ function createTreeRings() {
 	        	//Get the length of the path
 		        d.pathLength = round2(document.getElementById("tree-" + d.treeID + "-rank-" + d.rank).getTotalLength());
 
-		        if(d.chosen) {	
-		        	d.pathLength = d.pathLength/5;
-		        	d.textWidthBold = textWidthBold[i];
-					//The offset to start the text
-					var textOffset = (d.textWidthBold/d.pathLength*100/2) / 5;
-					//How often does the text fit in the remaining path
-					var textFit = Math.round( ((50 - textOffset)/100 * d.pathLength) / d.textWidth ) + 1;
-					//console.log(textFit, d.textWidth, textWidthBold[i], d.pathLength, ((50 - textOffset)/100 ))
-					
-					//Add a path for the before text
-		        	el.append("textPath")
-						.attr("class", "ring-text-normal circle-front")
-					  	.attr("startOffset", function(t) {
-					  		t.startOffsetFront = round2(50 - textOffset);
-					  		return (t.startOffsetFront+extraOffset) + "%";
-					  	})
-					  	.style("text-anchor","end")
-					  	.style("fill", middlegrey)
-						.attr("xlink:href", "#tree-" + d.treeID + "-rank-" + d.rank)
-						.text(new Array(textFit).join( '\u00A0\u00A0' + d.originalD + '\u00A0\u00A0' ));
-					//Add a path for the after text
-		        	el.append("textPath")
-						.attr("class", "ring-text-normal circle-end")
-					  	.attr("startOffset", function(t) {
-					  		t.startOffsetEnd = round2(50 + textOffset);
-					  		return (t.startOffsetEnd+extraOffset) + "%";
-					  	})
-					  	.style("text-anchor","start")
-					  	.style("fill", middlegrey)
-						.attr("xlink:href", "#tree-" + d.treeID + "-rank-" + d.rank)
-						.text(new Array(textFit).join( '\u00A0\u00A0' + d.originalD + '\u00A0\u00A0' ));
-				} else {
-		        	//How often does the text fit in the remaining path
-		        	var textFit = Math.round( d.pathLength / (d.textWidth - 3*spaceWidth) ) + 2;
-		        	//console.log(textFit, d.textWidth, 3*spaceWidth, d.pathLength);
-					el.append("textPath")
-						.attr("class", "ring-text-normal")
-					  	.attr("startOffset", "50%")
-					  	.style("text-anchor", "middle")
-					  	.style("fill", lightgrey)
-						.attr("xlink:href", "#tree-" + d.treeID + "-rank-" + d.rank)
-						.text(new Array(textFit).join( d.translationD + ' ' ));
-		        }//else
+				//How often does the text fit in the remaining path
+				var textFit = Math.round( d.pathLength / (d.textWidth - 3*spaceWidth) ) + 2;
+				//console.log(textFit, d.textWidth, 3*spaceWidth, d.pathLength);
+				el.append("textPath")
+					.attr("class", "ring-text-normal")
+					.attr("startOffset", "50%")
+					.style("text-anchor", "middle")
+					.style("fill", lightgrey)
+					.attr("xlink:href", "#tree-" + d.treeID + "-rank-" + d.rank)
+					.text(new Array(textFit).join( d.translationD + ' ' ));
 		    });
-
+		
 	}//function updateTextPaths
 
 	///////////////////////////////////////////////////////////////////////////

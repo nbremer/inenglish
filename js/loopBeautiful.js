@@ -23,15 +23,12 @@ function loopBeautiful() {
 		{language: "Turkish", word: "güzel\u00A0\u00A0\u00A0"},
 	];
 
-	var middlegrey = "#a7a7a7";
-
-	//var t1 = d3.transition().duration(2000);
-	//var t2 = d3.transition().duration(1000);
-
-	var t = d3.interval(loopBeauty, 4000);
 
 	var chosen = 0,
 		chosenOld = 0;
+		
+	//var t = d3.interval(loopBeauty, 4000);
+	var loopThroughWords = setInterval(loopBeauty, 4000);
 
 	function loopBeauty() {
 
