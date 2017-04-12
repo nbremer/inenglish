@@ -427,7 +427,7 @@ function createWordSnake() {
   			d3.event.stopPropagation();
   			
   			//Hide the X mark in the top right because it's a hover
-			//d3.select("#tooltip-close").style("visibility", "hidden");
+			d3.select("#tooltip-close").style("color", "white");
 
 			//Find the locations of the center of the tooltip on top of the x and y
 			var ypos = d.y + margin.top + chartOffsetTop - tooltipHeight/2;
@@ -466,8 +466,8 @@ function createWordSnake() {
 			//Stop propagation to the SVG
   			d3.event.stopPropagation();
 
-  			//Hide the X mark in the top right because it's a hover
-			//d3.select("#tooltip-close").style("visibility", "visible");
+  			//Show the tooltip cross
+			d3.select("#tooltip-close").style("color", "black");
 
 			//If the window is smaller than the max size of the tooltip, center it
 			if(window.innerWidth < 900) {

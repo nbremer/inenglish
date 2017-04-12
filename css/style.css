@@ -594,7 +594,10 @@ header {
 	text-align: center;
 	white-space: pre;
 	cursor: default;
-	pointer-events: none;
+}
+
+.link-no-hover {
+  pointer-events: none;
 }
 
 .link-path {

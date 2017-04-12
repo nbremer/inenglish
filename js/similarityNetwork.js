@@ -103,6 +103,9 @@ function createSimilarityNetwork() {
 	var nodesByName = {};
 	var nodes;
 
+	//Save the nodes that belong to each "link" word
+	var wordsPerNode = [];
+
 	d3.csv('data/links_English_combined.csv', function (error, links) {
 
 		///////////////////////////////////////////////////////////////////////////
@@ -146,14 +149,24 @@ function createSimilarityNetwork() {
 	  	//Extract the array of nodes from the map by name.
 	  	nodes = d3.values(nodesByName);
 
-	  	//Sort the nodes very specifically
-	  	//"de","es","ja","it"
-
 	  	//For the hover effects
 	  	//http://stackoverflow.com/questions/8739072/highlight-selected-node-its-links-and-its-children-in-a-d3-force-directed-grap
 		links.forEach(function(d) {
-		  linkedByIndex[d.source.name + "," + d.target.name] = 1;
+		  	linkedByIndex[d.source.name + "," + d.target.name] = 1;
+
+		  	if(!wordsPerNode[d.translation]) {
+		  		wordsPerNode[d.translation] = [d.source.name];
+		  	} else {
+		  		wordsPerNode[d.translation].push(d.source.name);
+		  	}//else
+		  	wordsPerNode[d.translation].push(d.target.name);
 		});
+
+		//Remove duplicates from each translation option
+		for (var key in wordsPerNode) {
+			if (wordsPerNode.hasOwnProperty(key))
+			wordsPerNode[key] = wordsPerNode[key].filter(function(item, i, ar){ return ar.indexOf(item) === i; });
+		}//for i
 
 		//Set up the locations of the nodes
 		calculateNodePositions(nodes);
@@ -165,7 +178,9 @@ function createSimilarityNetwork() {
 		var link = svg.selectAll(".link")
 			.data(links)
 			.enter().append("g")
-			.attr("class", "link");
+			.attr("class", "link")
+			.on("mouseover", linkMouseOver)
+			.on("mouseout", linkMouseOut);
 
 		//Create the paths
 		link.append("path")
@@ -186,6 +201,11 @@ function createSimilarityNetwork() {
 
 		//Create the text on the paths
 		updateLinkTextPaths();
+
+		//Make middle links hoverable and the rest not
+		link
+			.filter(function(d) { return !middle(d); })
+			.classed("link-no-hover", true);
 
 		///////////////////////////////////////////////////////////////////////////
 		//////////////////////////// Create the nodes /////////////////////////////
@@ -239,6 +259,10 @@ function createSimilarityNetwork() {
 				.on("click", null)
 				.on("mouseover", null)
 				.on("mouseout", null);
+
+			//Remove hover class from all links, i.e. deactivate mouse events on links
+			svg.selectAll(".link")
+				.classed("link-no-hover", true);
 
 			//Fade out the textPaths and then remove them
 			svg.selectAll(".link").selectAll("textPath")
@@ -341,6 +365,9 @@ function createSimilarityNetwork() {
 					.on("click", switchCenterLanguage)
 					.on("mouseover", nodeMouseOver)
 					.on("mouseout", nodeMouseOut);
+				//Make middle links hoverable and the rest not
+				svg.selectAll(".link")
+					.classed("link-no-hover", function(d) { return !middle(d); });
 			}//function fadeIn
 
 		}//else
@@ -573,18 +600,60 @@ function createSimilarityNetwork() {
 	///////////////////////////// Extra functions /////////////////////////////
 	///////////////////////////////////////////////////////////////////////////
 
+	//Mouse over a word link circle
+	function linkMouseOver(d) {
+		//if(middle(d)) {
+			var opacity = 0.1;
+			// //Dim all non-connected nodes
+			svg.selectAll(".node")
+				.transition().duration(200)
+				.style("opacity", function(o) { return wordsPerNode[d.translation].indexOf(o.name) > -1 ? 1 : opacity; });
+
+			//Dim all links that are not exactly the same word
+			svg.selectAll(".link")
+				.transition().duration(200)
+				.style("opacity", function(o) { return o.translation === d.translation ? 1 : opacity; });
+			svg.selectAll(".link-path")
+				.transition().duration(200)
+				.filter(function(o) { return !middle(o); })
+				.style("opacity", function(o) { return o.translation === d.translation ? hoverLinkOpacity : opacity; });
+		//}//if
+	}//linkMouseOver
+
+	//Mouse out a word link
+	function linkMouseOut() {
+		//Bring everything back to normal
+		svg.selectAll(".node")
+			.transition().duration(200)
+			.style("opacity", 1);
+		svg.selectAll(".link")
+			.transition().duration(200)
+			.style("opacity", 1);
+		svg.selectAll(".link").selectAll(".link-path")
+			.transition().duration(200)
+		 	.style("opacity", function(d) { return middle(d) ? middleLinkOpacity : linkOpacity; });
+	}//linkMouseOut
+
 	//Mouse over a language circle
 	function nodeMouseOver(d) {
 		var opacity = 0.1;
 		//Dim all other nodes
 		svg.selectAll(".node")
+			.transition().duration(0)
 			.style("opacity", function(o) { return neighboring(d, o) || d === o ? 1 : opacity; });
 		//Dim unconnected links
 		svg.selectAll(".link")
+			.transition().duration(0)
 			.style("opacity", function(o) { return o.source === d || o.target === d ? 1 : opacity; });
 		svg.selectAll(".link-path")
-			.filter(function(o) { return !middle(o); })
-			.style("opacity", function(o) { return o.source === d || o.target === d ? hoverLinkOpacity : opacity; });
+			.transition().duration(0)
+			.style("opacity", function(o) { 
+				if(middle(o)) {
+					return middleLinkOpacity;
+				} else {
+					return o.source === d || o.target === d ? hoverLinkOpacity : opacity;
+				}//else
+			});
 	}//nodeMouseOver
 
 	//Mouse out a language circle
